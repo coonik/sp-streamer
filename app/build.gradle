@@ -1,5 +1,9 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'  // nếu dùng Kotlin
+}
 android {
-    namespace 'com.streamerbot'  // ✅ namespace phải có ở đây
+    namespace 'com.streamerbot'
     compileSdk 34
 
     defaultConfig {
