@@ -25,10 +25,10 @@ jobs:
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.jks
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew :app:assembleRelease
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: '**/build/outputs/apk/release/*.apk'
+          path: app/build/outputs/apk/release/app-release.apk
