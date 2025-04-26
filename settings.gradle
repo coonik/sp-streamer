@@ -1,2 +1,2 @@
-rootProject.name = "sp-streamer"
+rootProject.name = "AutoClickerDemo"
 include ':app'
