@@ -6,10 +6,10 @@ plugins {
 android {
     compileSdk 34
 
-    namespace 'com.example.streamer' // 🔥 Thêm dòng này
+    namespace 'com.streamerbot'
 
     defaultConfig {
-        applicationId "com.example.streamer"
+        applicationId "com.streamerbot"
         minSdk 24
         targetSdk 34
         versionCode 1
