@@ -1,0 +1,10 @@
+your-project/
+  gradle/
+    wrapper/
+      gradle-wrapper.jar
+      gradle-wrapper.properties
+  app/
+  build.gradle
+  settings.gradle
+  gradlew
+  gradlew.bat
