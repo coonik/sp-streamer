@@ -1,0 +1,18 @@
+android {
+    signingConfigs {
+        release {
+            storeFile file('my-release-key.jks')
+            storePassword "123123"
+            keyAlias "my-key-alias"
+            keyPassword "123123"
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
