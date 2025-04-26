@@ -1,15 +1,17 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
-    compileSdkVersion 34
+    compileSdk 34
+
+    namespace 'com.example.streamer' // 🔥 Thêm dòng này
 
     defaultConfig {
-        applicationId "com.example.autoclickerdemo"
-        minSdkVersion 24
-        targetSdkVersion 34
+        applicationId "com.example.streamer"
+        minSdk 24
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -25,7 +27,7 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.0"
-    implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation "androidx.core:core-ktx:1.12.0"
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "com.google.android.material:material:1.11.0"
 }
