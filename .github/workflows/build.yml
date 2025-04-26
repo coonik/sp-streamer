@@ -1,4 +1,4 @@
-name: Android Release Build
+name: Android Release Build WITHOUT gradle
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
           java-version: '17'
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Decode keystore
         run: |
