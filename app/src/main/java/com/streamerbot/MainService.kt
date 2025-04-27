@@ -3,14 +3,13 @@ package com.streamerbot
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
 import android.graphics.Path
+import android.graphics.Rect
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.content.res.Resources
-import android.graphics.Rect
 
 class MainService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
-
     override fun onInterrupt() {}
 
     override fun onServiceConnected() {
@@ -24,22 +23,20 @@ class MainService : AccessibilityService() {
         Thread {
             while (true) {
                 val root = rootInActiveWindow ?: continue
+                root.refresh()
 
-                val popup = findPartialText(root, "Vòng quay")
+                val popup = findNodeByText(root, "vòng quay")
                 if (popup != null) {
                     if (startButtonPosition != null) {
-                        if (startButtonPosition != null) {
-                            val position = startButtonPosition
-                            spamClickAtPosition(position!!.first, position.second)
-                            Thread.sleep(10) // Sleep ngắn
-                            continue
-                        }
+                        val (x, y) = startButtonPosition!!
+                        spamClickAtPosition(x, y)
+                        Thread.sleep(10)
+                        continue
                     } else {
-                        val startButton = findPartialText(root, "Bắt đầu trong")
+                        val startButton = findNodeByText(root, "bắt đầu trong")
                         if (startButton != null) {
-                            // Lưu lại vị trí của nút "Bắt đầu"
                             startButtonPosition = getNodeCenterPosition(startButton)
-                            Thread.sleep(1000) // Sleep ngắn để tránh quá tải thao tác
+                            Thread.sleep(1000)
                             continue
                         }
                     }
@@ -47,24 +44,17 @@ class MainService : AccessibilityService() {
 
                 findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
-
                 val goButton = getGoButton(root)
                 if (goButton != null) {
-                    val fl = findPartialText(root, "Theo dõi")
-                    if (fl != null) {
-                        fl.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    }
+                    findNodeByText(root, "theo dõi")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     goButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     Thread.sleep(5000)
                     continue
                 }
 
-                val xuStreamer = findText(root, "Xu Streamer")
+                val xuStreamer = findNodeByText(root, "xu streamer")
                 if (xuStreamer != null) {
-                    val nhan = findPartialText(root, "Lưu")
-                    if (nhan != null) {
-                        nhan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    }
+                    findNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                     val countdownText = findCountdownNear(xuStreamer)
                     if (countdownText != null) {
@@ -81,48 +71,23 @@ class MainService : AccessibilityService() {
         }.start()
     }
 
-
-    // New find start Button
-    
-
-    // Lấy vị trí trung tâm của node
     private fun getNodeCenterPosition(node: AccessibilityNodeInfo): Pair<Float, Float> {
-        val bounds = android.graphics.Rect()
+        val bounds = Rect()
         node.getBoundsInScreen(bounds)
         return Pair(bounds.centerX().toFloat(), bounds.centerY().toFloat())
     }
 
-    // Spam click vào vị trí đã lưu
     private fun spamClickAtPosition(x: Float, y: Float) {
         val path = Path().apply {
             moveTo(x, y)
         }
-
         val gesture = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 50)) // Click trong 50ms
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 50))
             .build()
-
         dispatchGesture(gesture, null, null)
     }
-    // END
 
-    // Close modal
-
-
-    private fun closeModal(rootNode: AccessibilityNodeInfo) {
-        // Tìm tất cả các nút với text "X" (hoặc mô tả tương tự)
-        val closeButtons = rootNode.findAccessibilityNodeInfosByText("X")
-        
-        if (closeButtons.isNotEmpty()) {
-            val closeButton = closeButtons[0]
-            // Nếu nút đóng tồn tại, thực hiện click vào nó
-            closeButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-        }
-    }
-    // END
-
-    // Find close Button
-    fun findCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+    private fun findCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         val nodeList = ArrayList<AccessibilityNodeInfo>()
         findAllNodes(root, nodeList)
 
@@ -130,8 +95,6 @@ class MainService : AccessibilityService() {
         val screenWidth = metrics.widthPixels
         val screenHeight = metrics.heightPixels
         val dpi = metrics.densityDpi
-
-        // Chuyển 4cm thành pixel
         val minDistanceFromBottomPx = ((4f / 2.54f) * dpi).toInt()
 
         for (node in nodeList) {
@@ -140,7 +103,6 @@ class MainService : AccessibilityService() {
 
             val height = bounds.height()
             val width = bounds.width()
-
             val centerX = (bounds.left + bounds.right) / 2
 
             if (height < 200 && width < 200) {
@@ -166,17 +128,15 @@ class MainService : AccessibilityService() {
         }
     }
 
-    // END
-
     private fun getGoButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         val countdownNodes = mutableListOf<AccessibilityNodeInfo>()
         collectCountdownNodes(root, countdownNodes)
 
         if (countdownNodes.isEmpty()) return null
 
-        val lastCountdown = countdownNodes[countdownNodes.size - 1]
+        val lastCountdown = countdownNodes.last()
 
-        if (countdownNodes.size == 3 || (countdownNodes.size == 2 && findPartialText(root, "Xu Streamer") == null)) {
+        if (countdownNodes.size == 3 || (countdownNodes.size == 2 && findNodeByText(root, "xu streamer") == null)) {
             return lastCountdown.parent
         }
         return null
@@ -189,36 +149,8 @@ class MainService : AccessibilityService() {
         if (text != null && text.matches(Regex("\\d{1,2}:\\d{2}"))) {
             list.add(node)
         }
-
         for (i in 0 until node.childCount) {
             collectCountdownNodes(node.getChild(i), list)
-        }
-    }
-
-    private fun findText(node: AccessibilityNodeInfo?, text: String): AccessibilityNodeInfo? {
-        if (node == null) return null
-        if (node.text?.toString()?.contains(text) == true) return node
-        for (i in 0 until node.childCount) {
-            val result = findText(node.getChild(i), text)
-            if (result != null) return result
-        }
-        return null
-    }
-
-    private fun findPartialText(node: AccessibilityNodeInfo?, partial: String): AccessibilityNodeInfo? {
-        if (node == null) return null
-        if (node.text?.toString()?.startsWith(partial) == true) return node
-        for (i in 0 until node.childCount) {
-            val result = findPartialText(node.getChild(i), partial)
-            if (result != null) return result
-        }
-        return null
-    }
-
-    private fun performScrollOrSwipe() {
-        val scrolled = performGlobalAction(4096)
-        if (!scrolled) {
-            swipeManually()
         }
     }
 
@@ -239,14 +171,21 @@ class MainService : AccessibilityService() {
         return parts.getOrNull(0)?.toIntOrNull() ?: 0
     }
 
+    private fun performScrollOrSwipe() {
+        val scrolled = performGlobalAction(4096)
+        if (!scrolled) {
+            swipeManually()
+        }
+    }
+
     private fun swipeManually() {
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
 
         val startX = (screenWidth / 2).toFloat()
-        val startY = (screenHeight * 0.7).toFloat()
-        val endY = (screenHeight * 0.4).toFloat()
+        val startY = (screenHeight * 0.7f)
+        val endY = (screenHeight * 0.4f)
 
         val path = Path().apply {
             moveTo(startX, startY)
@@ -256,7 +195,20 @@ class MainService : AccessibilityService() {
         val gesture = GestureDescription.Builder()
             .addStroke(GestureDescription.StrokeDescription(path, 0, 500))
             .build()
-
         dispatchGesture(gesture, null, null)
+    }
+
+    // 🧩 Hàm tìm text theo yêu cầu mới: không phân biệt hoa thường, chỉ cần chứa
+    private fun findNodeByText(node: AccessibilityNodeInfo?, keyword: String): AccessibilityNodeInfo? {
+        if (node == null) return null
+        val text = node.text?.toString()?.trim()?.lowercase()
+        if (text != null && text.contains(keyword.lowercase())) {
+            return node
+        }
+        for (i in 0 until node.childCount) {
+            val result = findNodeByText(node.getChild(i), keyword)
+            if (result != null) return result
+        }
+        return null
     }
 }
