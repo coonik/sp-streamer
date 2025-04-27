@@ -25,11 +25,7 @@ class MainService : AccessibilityService() {
 
                 val popup = findNodeByText(root, "vòng quay")
                 if (popup != null) {
-                    val bdt = findNodeByText(root, "bắt đầu trong")
-                    if (bdt != null) {
-                        continue
-                    }
-                    findButtonNearCenter(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    findButtonNearAdjustedCenter(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     Thread.sleep(10)
                     continue
                 }
@@ -63,19 +59,18 @@ class MainService : AccessibilityService() {
         }.start()
     }
 
-    // Tìm node clickable ở gần giữa màn hình (~2cm bán kính)
-    private fun findButtonNearCenter(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+    private fun findButtonNearAdjustedCenter(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         val allNodes = ArrayList<AccessibilityNodeInfo>()
         findAllNodes(root, allNodes)
 
         val metrics = Resources.getSystem().displayMetrics
         val screenWidth = metrics.widthPixels
         val screenHeight = metrics.heightPixels
+        val dpi = metrics.densityDpi
 
         val centerX = screenWidth / 2
-        val centerY = screenHeight / 2
+        val centerY = screenHeight / 2 - (dpi / 2.54f).toInt() // Di chuyển lên trên ~1cm
 
-        val dpi = metrics.densityDpi
         val distancePx = ((4f / 2.54f) * dpi).toInt() // ~2cm bán kính
 
         for (node in allNodes) {
@@ -108,7 +103,7 @@ class MainService : AccessibilityService() {
         val screenWidth = metrics.widthPixels
         val screenHeight = metrics.heightPixels
         val dpi = metrics.densityDpi
-        val minDistanceFromBottomPx = ((5f / 2.54f) * dpi).toInt()
+        val minDistanceFromBottomPx = ((4f / 2.54f) * dpi).toInt()
 
         for (node in nodeList) {
             val bounds = Rect()
