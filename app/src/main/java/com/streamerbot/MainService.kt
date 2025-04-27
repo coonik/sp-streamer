@@ -29,13 +29,12 @@ class MainService : AccessibilityService() {
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
-                    Thread.sleep(5000)
-
                     val fl = findPartialText(root, "Theo dõi")
                     if (fl != null) {
                         fl.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     }
                     goButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    Thread.sleep(5000)
                     continue
                 }
 
