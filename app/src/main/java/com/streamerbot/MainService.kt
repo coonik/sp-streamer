@@ -22,7 +22,15 @@ class MainService : AccessibilityService() {
                 val root = rootInActiveWindow ?: continue
 
                 val xuStreamer = findText(root, "Xu Streamer")
+                
                 if (xuStreamer != null) {
+                    val countdownText = findCountdownNear(xuStreamer)
+                    if (countdownText != null) {
+                        val minutes = extractMinutes(countdownText)
+                        if (minutes > 5) {
+                            performScrollOrSwipe()
+                        }
+                    }
                     val nhan = findPartialText(root, "Lưu")
                     if (nhan != null) {
                         nhan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
@@ -30,7 +38,6 @@ class MainService : AccessibilityService() {
                 } else {
                     performScrollOrSwipe()
                 }
-
                 Thread.sleep(2000)
             }
         }.start()
@@ -57,10 +64,27 @@ class MainService : AccessibilityService() {
     }
 
     private fun performScrollOrSwipe() {
-        val scrolled = performGlobalAction(GLOBAL_ACTION_SCROLL_FORWARD)
+        val scrolled = performGlobalAction(AccessibilityService.GLOBAL_ACTION_SCROLL_FORWARD)
         if (!scrolled) {
             swipeManually()
         }
+    }
+
+    private fun findCountdownNear(node: AccessibilityNodeInfo): String? {
+        val parent = node.parent ?: return null
+        for (i in 0 until parent.childCount) {
+            val child = parent.getChild(i)
+            val text = child?.text?.toString()
+            if (text != null && text.matches(Regex("\\d{1,2}:\\d{2}"))) {
+                return text
+            }
+        }
+        return null
+    }
+
+    private fun extractMinutes(countdown: String): Int {
+        val parts = countdown.split(":")
+        return parts.getOrNull(0)?.toIntOrNull() ?: 0
     }
 
     private fun swipeManually() {
