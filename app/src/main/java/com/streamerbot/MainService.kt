@@ -16,6 +16,8 @@ class MainService : AccessibilityService() {
         startChecking()
     }
 
+    private var startButtonPosition: Pair<Float, Float>? = null
+
     private fun startChecking() {
         Thread {
             while (true) {
@@ -23,15 +25,21 @@ class MainService : AccessibilityService() {
 
                 val popup = findPartialText(root, "Vòng quay")
                 if (popup != null) {
-                    val quayButton = findPartialText(root, "QUAY")
-                    if (quayButton != null) {
-                        quayButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        Thread.sleep(3000)
-                        findAndClickCloseButton(root)
+                    if (startButtonPosition != null) {
+                        startButtonPosition?.let { 
+                            spamClickAtPosition(it.first, it.second)
+                            Thread.sleep(10) // Sleep ngắn
+                            continue
+                        }
                     } else {
-                        Thread.sleep(1)
+                        val startButton = findPartialText(root, "Bắt đầu trong")
+                        if (startButton != null) {
+                            // Lưu lại vị trí của nút "Bắt đầu"
+                            startButtonPosition = getNodeCenterPosition(startButton)
+                            spamClickCenter(startButton)
+                            Thread.sleep(10) // Sleep ngắn để tránh quá tải thao tác
+                        }
                     }
-                    continue
                 }
 
                 val goButton = getGoButton(root)
@@ -96,6 +104,31 @@ class MainService : AccessibilityService() {
         return null
     }
 
+    // END
+
+
+    // New find start Button
+    
+
+    // Lấy vị trí trung tâm của node
+    private fun getNodeCenterPosition(node: AccessibilityNodeInfo): Pair<Float, Float> {
+        val bounds = android.graphics.Rect()
+        node.getBoundsInScreen(bounds)
+        return Pair(bounds.centerX().toFloat(), bounds.centerY().toFloat())
+    }
+
+    // Spam click vào vị trí đã lưu
+    private fun spamClickAtPosition(x: Float, y: Float) {
+        val path = Path().apply {
+            moveTo(x, y)
+        }
+
+        val gesture = GestureDescription.Builder()
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 50)) // Click trong 50ms
+            .build()
+
+        dispatchGesture(gesture, null, null)
+    }
     // END
 
     private fun getGoButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
