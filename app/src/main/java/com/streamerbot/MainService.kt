@@ -23,7 +23,7 @@ class MainService : AccessibilityService() {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
 
-                val popup = findNodeByText(root, "vòng quay")
+                val popup = findClickableNodeByText(root, "vòng quay")
                 if (popup != null) {
                     findButtonNearAdjustedCenter(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     Thread.sleep(10)
@@ -34,15 +34,15 @@ class MainService : AccessibilityService() {
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
-                    findNodeByText(root, "theo dõi")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    findClickableNodeByText(root, "theo dõi")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     goButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     Thread.sleep(5000)
                     continue
                 }
 
-                val xuStreamer = findNodeByText(root, "xu streamer")
+                val xuStreamer = findClickableNodeByText(root, "xu streamer")
                 if (xuStreamer != null) {
-                    findNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                     val countdownText = findCountdownNear(xuStreamer)
                     if (countdownText != null) {
@@ -156,7 +156,7 @@ class MainService : AccessibilityService() {
 
         val lastCountdown = countdownNodes.last()
 
-        if (countdownNodes.size == 3 || (countdownNodes.size == 2 && findNodeByText(root, "xu streamer") == null)) {
+        if (countdownNodes.size == 3 || (countdownNodes.size == 2 && findClickableNodeByText(root, "xu streamer") == null)) {
             return lastCountdown.parent
         }
         return null
@@ -218,17 +218,25 @@ class MainService : AccessibilityService() {
         dispatchGesture(gesture, null, null)
     }
 
-    // 🧩 Hàm tìm text theo yêu cầu mới: không phân biệt hoa thường, chỉ cần chứa
-    private fun findNodeByText(node: AccessibilityNodeInfo?, keyword: String): AccessibilityNodeInfo? {
+    private fun findClickableNodeByText(node: AccessibilityNodeInfo?, keyword: String): AccessibilityNodeInfo? {
         if (node == null) return null
+
         val text = node.text?.toString()?.trim()?.lowercase()
         if (text != null && text.contains(keyword.lowercase())) {
-            return node
+            var clickableNode: AccessibilityNodeInfo? = node
+            while (clickableNode != null && !clickableNode.isClickable) {
+                clickableNode = clickableNode.parent
+            }
+            if (clickableNode != null && clickableNode.isVisibleToUser) {
+                return clickableNode
+            }
         }
+
         for (i in 0 until node.childCount) {
-            val result = findNodeByText(node.getChild(i), keyword)
+            val result = findClickableNodeByText(node.getChild(i), keyword)
             if (result != null) return result
         }
+
         return null
     }
 }
