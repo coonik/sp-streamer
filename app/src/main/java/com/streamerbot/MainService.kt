@@ -26,8 +26,9 @@ class MainService : AccessibilityService() {
                 val popup = findPartialText(root, "Vòng quay")
                 if (popup != null) {
                     if (startButtonPosition != null) {
-                        startButtonPosition?.let { 
-                            spamClickAtPosition(it.first, it.second)
+                        if (startButtonPosition != null) {
+                            val position = startButtonPosition
+                            spamClickAtPosition(position!!.first, position.second)
                             Thread.sleep(10) // Sleep ngắn
                             continue
                         }
