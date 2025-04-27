@@ -25,8 +25,13 @@ class MainService : AccessibilityService() {
 
                 val popup = findNodeByText(root, "vòng quay")
                 if (popup != null) {
+                    val bdt = findNodeByText(root, "bắt đầu trong")
+                    if (btd) {
+                        continue
+                    }
                     findButtonAboveClose(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     Thread.sleep(10)
+                    continue
                 }
 
                 findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
@@ -70,7 +75,7 @@ class MainService : AccessibilityService() {
 
         val metrics = Resources.getSystem().displayMetrics
         val dpi = metrics.densityDpi
-        val distancePx = ((2f / 2.54f) * dpi).toInt()
+        val distancePx = ((4f / 2.54f) * dpi).toInt()
 
         for (node in allNodes) {
             if (node == closeButton) continue
@@ -101,7 +106,7 @@ class MainService : AccessibilityService() {
         val screenWidth = metrics.widthPixels
         val screenHeight = metrics.heightPixels
         val dpi = metrics.densityDpi
-        val minDistanceFromBottomPx = ((4f / 2.54f) * dpi).toInt()
+        val minDistanceFromBottomPx = ((5f / 2.54f) * dpi).toInt()
 
         for (node in nodeList) {
             val bounds = Rect()
