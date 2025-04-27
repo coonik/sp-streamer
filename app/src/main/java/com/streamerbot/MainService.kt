@@ -41,7 +41,7 @@ class MainService : AccessibilityService() {
                 } else {
                     performScrollOrSwipe()
                 }
-                Thread.sleep(20000)
+                Thread.sleep(10000)
             }
         }.start()
     }
