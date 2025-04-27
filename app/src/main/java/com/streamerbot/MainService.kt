@@ -46,36 +46,6 @@ class MainService : AccessibilityService() {
                 }
 
                 findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-
-
-                val goButton = getGoButton(root)
-                if (goButton != null) {
-                    val fl = findPartialText(root, "Theo dõi")
-                    if (fl != null) {
-                        fl.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    }
-                    goButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    Thread.sleep(5000)
-                    continue
-                }
-
-                val xuStreamer = findText(root, "Xu Streamer")
-                if (xuStreamer != null) {
-                    val nhan = findPartialText(root, "Lưu")
-                    if (nhan != null) {
-                        nhan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    }
-
-                    val countdownText = findCountdownNear(xuStreamer)
-                    if (countdownText != null) {
-                        val minutes = extractMinutes(countdownText)
-                        if (minutes > 5) {
-                            performScrollOrSwipe()
-                        }
-                    }
-                } else {
-                    performScrollOrSwipe()
-                }
                 Thread.sleep(3000)
             }
         }.start()
