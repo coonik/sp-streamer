@@ -24,7 +24,6 @@ class MainService : AccessibilityService() {
                 val popup = findPopupParent(root, "Vòng quay")
                 if (popup != null) {
                     spamClickCenter(popup)
-                    Thread.sleep(10)
                     continue
                 }
 
@@ -107,19 +106,32 @@ class MainService : AccessibilityService() {
         val bounds = android.graphics.Rect()
         node.getBoundsInScreen(bounds)
 
+        // Nếu bounds là rỗng, bỏ qua không click
+        if (bounds.isEmpty) {
+            return
+        }
+
+        // Vị trí giữa của bounds
         val centerX = bounds.centerX().toFloat()
         val centerY = bounds.centerY().toFloat()
 
+        // Tạo path hình tròn có đường kính 10px
+        val radius = 5f // bán kính 5px, tức là đường kính 10px
+
         val path = Path().apply {
             moveTo(centerX, centerY)
+            // Vẽ một vòng tròn nhỏ
+            addCircle(centerX, centerY, radius, Path.Direction.CW)
         }
 
         val gesture = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 50))
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 10)) // click trong 100ms
             .build()
 
+        // Gửi gesture click
         dispatchGesture(gesture, null, null)
     }
+
 
     private fun findText(node: AccessibilityNodeInfo?, text: String): AccessibilityNodeInfo? {
         if (node == null) return null
