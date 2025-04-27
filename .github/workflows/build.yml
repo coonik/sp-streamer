@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Setup Java
       uses: actions/setup-java@v4
@@ -21,6 +22,9 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
+    - name: Set up Android Build Tools (apksigner)
+      run: echo "$ANDROID_HOME/build-tools/34.0.0" >> $GITHUB_PATH
+
     - name: Decode Keystore
       run: echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.jks
 
@@ -29,11 +33,15 @@ jobs:
 
     - name: Sign APK
       run: |
-        apksigner sign --ks my-release-key.jks \
+        apksigner sign \
+          --ks my-release-key.jks \
           --ks-key-alias "${{ secrets.RELEASE_KEY_ALIAS }}" \
           --ks-pass pass:"${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" \
           --key-pass pass:"${{ secrets.RELEASE_KEY_PASSWORD }}" \
           --out app-release-signed.apk app/build/outputs/apk/release/app-release.apk
+
+    - name: Verify Signed APK
+      run: apksigner verify app-release-signed.apk
 
     - name: Upload Signed APK
       uses: actions/upload-artifact@v4
