@@ -28,7 +28,7 @@ class MainService : AccessibilityService() {
                     if (nhan != null) {
                         nhan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     }
-                    
+
                     val countdownText = findCountdownNear(xuStreamer)
                     if (countdownText != null) {
                         val minutes = extractMinutes(countdownText)
@@ -65,7 +65,7 @@ class MainService : AccessibilityService() {
     }
 
     private fun performScrollOrSwipe() {
-        val scrolled = performGlobalAction(AccessibilityService.GLOBAL_ACTION_SCROLL_FORWARD)
+        val scrolled = performGlobalAction(4096)
         if (!scrolled) {
             swipeManually()
         }
