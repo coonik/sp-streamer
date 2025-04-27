@@ -38,12 +38,10 @@ class MainService : AccessibilityService() {
                             // Lưu lại vị trí của nút "Bắt đầu"
                             startButtonPosition = getNodeCenterPosition(startButton)
                             Thread.sleep(1000) // Sleep ngắn để tránh quá tải thao tác
-                            closeModal(root)
                             continue
                         }
                     }
                 }
-                closeModal(root)
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
@@ -77,37 +75,6 @@ class MainService : AccessibilityService() {
             }
         }.start()
     }
-
-    // New code to close QUAY modal
-    private fun findAndClickCloseButton(root: AccessibilityNodeInfo) {
-        // Tìm nút đóng (icon X) trong toàn bộ màn hình
-        val closeButton = findCloseButton(root)
-        if (closeButton != null) {
-            closeButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-        }
-    }
-
-    // Tìm nút "Close" hoặc icon "X"
-    private fun findCloseButton(node: AccessibilityNodeInfo?): AccessibilityNodeInfo? {
-        if (node == null) return null
-
-        // Duyệt qua tất cả các con của node để tìm icon đóng
-        for (i in 0 until node.childCount) {
-            val child = node.getChild(i)
-            val contentDescription = child?.contentDescription?.toString()
-
-            // Kiểm tra nếu nó là nút đóng (icon "X" hoặc "Close")
-            if (contentDescription != null && 
-                (contentDescription.contains("Close", ignoreCase = true) || 
-                contentDescription.contains("Đóng", ignoreCase = true) || 
-                contentDescription.contains("X", ignoreCase = true))) {
-                return child
-            }
-        }
-        return null
-    }
-
-    // END
 
 
     // New find start Button
