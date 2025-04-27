@@ -27,6 +27,8 @@ class MainService : AccessibilityService() {
                     val nhan = findPartialText(root, "Lưu")
                     if (nhan != null) {
                         nhan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(2000)
+                        performScrollOrSwipe()
                     }
 
                     val countdownText = findCountdownNear(xuStreamer)
@@ -39,7 +41,7 @@ class MainService : AccessibilityService() {
                 } else {
                     performScrollOrSwipe()
                 }
-                Thread.sleep(2000)
+                Thread.sleep(20000)
             }
         }.start()
     }
