@@ -24,16 +24,17 @@ class MainService : AccessibilityService() {
                 val xuStreamer = findText(root, "Xu Streamer")
                 
                 if (xuStreamer != null) {
+                    val nhan = findPartialText(root, "Lưu")
+                    if (nhan != null) {
+                        nhan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    }
+                    
                     val countdownText = findCountdownNear(xuStreamer)
                     if (countdownText != null) {
                         val minutes = extractMinutes(countdownText)
                         if (minutes > 5) {
                             performScrollOrSwipe()
                         }
-                    }
-                    val nhan = findPartialText(root, "Lưu")
-                    if (nhan != null) {
-                        nhan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     }
                 } else {
                     performScrollOrSwipe()
