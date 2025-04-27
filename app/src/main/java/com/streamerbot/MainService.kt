@@ -21,6 +21,26 @@ class MainService : AccessibilityService() {
             while (true) {
                 val root = rootInActiveWindow ?: continue
 
+                val popup = findPopupParent(rootInActiveWindow, "Vòng quay")
+                if (popup != null) {
+                    spamClickCenter(popup)
+                    Thread.sleep(10) 
+                    continue // Bỏ qua hành động khác, tiếp tục vòng lặp
+                }
+
+                const goButton = getGoButton(root);
+                if (goButton) {
+                    Thread.sleep(5000)
+                    
+                    val fl = findPartialText(root, "Theo dõi")
+                    if (fl != null) {
+                        fl.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    }
+                    goButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+
+                    continue // bỏ qua xử lý bên dưới, vòng while check lại ngay
+                }
+
                 val xuStreamer = findText(root, "Xu Streamer")
                 
                 if (xuStreamer != null) {
@@ -44,6 +64,65 @@ class MainService : AccessibilityService() {
                 Thread.sleep(4000)
             }
         }.start()
+    }
+
+    // Trả về node GO Button nếu có, còn không thì null
+    private fun getGoButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+        // Tìm hết các countdown (định dạng "mm:ss")
+        val countdownNodes = mutableListOf<AccessibilityNodeInfo>()
+        collectCountdownNodes(root, countdownNodes)
+        val lastCountdown = countdownNodes[countdownNodes.size - 1]
+
+        if (countdownNodes.size === 3 || (countdownNode.size == 2 && findPartialText(root, "Xu Streamer") == null)) {
+            return lastCountdown.parent;
+        }
+
+        return null;
+    }
+
+    // Tìm tất cả node text dạng "mm:ss"
+    private fun collectCountdownNodes(node: AccessibilityNodeInfo?, list: MutableList<AccessibilityNodeInfo>) {
+        if (node == null) return
+
+        val text = node.text?.toString()
+        if (text != null && text.matches(Regex("\\d{1,2}:\\d{2}"))) {
+            list.add(node)
+        }
+
+        for (i in 0 until node.childCount) {
+            collectCountdownNodes(node.getChild(i), list)
+        }
+    }
+
+    private fun findPopupParent(node: AccessibilityNodeInfo?, keyword: String): AccessibilityNodeInfo? {
+        if (node == null) return null
+        if (node.text?.toString()?.contains(keyword) == true) {
+            return node.parent ?: node // Ưu tiên trả về parent nếu có
+        }
+        for (i in 0 until node.childCount) {
+            val result = findPopupParent(node.getChild(i), keyword)
+            if (result != null) return result
+        }
+        return null
+    }
+
+    private fun spamClickCenter(node: AccessibilityNodeInfo) {
+        val bounds = android.graphics.Rect()
+        node.getBoundsInScreen(bounds)
+
+        val centerX = bounds.centerX().toFloat()
+        val centerY = bounds.centerY().toFloat()
+
+        val path = Path().apply {
+            moveTo(centerX, centerY)
+        }
+
+        val gesture = GestureDescription.Builder()
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 50)) // click trong 50ms
+            .build()
+
+        // Gửi gesture click
+        dispatchGesture(gesture, null, null)
     }
 
     private fun findText(node: AccessibilityNodeInfo?, text: String): AccessibilityNodeInfo? {
