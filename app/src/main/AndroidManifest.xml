@@ -15,8 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.App">
 
-        <!-- Thêm Activity vào để app có icon launcher -->
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
