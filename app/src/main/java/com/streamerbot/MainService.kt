@@ -26,7 +26,7 @@ class MainService : AccessibilityService() {
                 val popup = findNodeByText(root, "vòng quay")
                 if (popup != null) {
                     val bdt = findNodeByText(root, "bắt đầu trong")
-                    if (bdt) {
+                    if (bdt != null) {
                         continue
                     }
                     findButtonNearCenter(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
