@@ -5,6 +5,8 @@ import android.accessibilityservice.GestureDescription
 import android.graphics.Path
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import android.content.res.Resources
+import android.graphics.Rect
 
 class MainService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
