@@ -43,6 +43,9 @@ class MainService : AccessibilityService() {
                     }
                 }
 
+                findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+
+
                 val goButton = getGoButton(root)
                 if (goButton != null) {
                     val fl = findPartialText(root, "Theo dõi")
@@ -114,6 +117,36 @@ class MainService : AccessibilityService() {
             closeButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         }
     }
+    // END
+
+    // Find close Button
+    fun findCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+        val nodeList = ArrayList<AccessibilityNodeInfo>()
+        findAllNodes(root, nodeList)
+
+        val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+        for (node in nodeList) {
+            val bounds = Rect()
+            node.getBoundsInScreen(bounds)
+            val height = bounds.height()
+            val width = bounds.width()
+            if (height < 200 && width < 200 && bounds.top > screenHeight / 2) {
+                if (node.className == "android.widget.Button" || node.className == "android.widget.ImageView") {
+                    return node
+                }
+            }
+        }
+        return null
+    }
+
+    private fun findAllNodes(node: AccessibilityNodeInfo?, list: MutableList<AccessibilityNodeInfo>) {
+        if (node == null) return
+        list.add(node)
+        for (i in 0 until node.childCount) {
+            findAllNodes(node.getChild(i), list)
+        }
+    }
+
     // END
 
     private fun getGoButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
