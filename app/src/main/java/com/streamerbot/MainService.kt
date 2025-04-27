@@ -97,7 +97,6 @@ class MainService : AccessibilityService() {
                     clickableNode = clickableNode.parent
                 }
                 if (clickableNode != null) {
-                    Log.d("findButton", "Found node with className=${clickableNode.className}")
                     return clickableNode
                 }
             }
