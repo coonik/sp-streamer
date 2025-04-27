@@ -37,10 +37,13 @@ class MainService : AccessibilityService() {
                             // Lưu lại vị trí của nút "Bắt đầu"
                             startButtonPosition = getNodeCenterPosition(startButton)
                             spamClickCenter(startButton)
-                            Thread.sleep(10) // Sleep ngắn để tránh quá tải thao tác
+                            Thread.sleep(1000) // Sleep ngắn để tránh quá tải thao tác
+                            closeModal(root)
+                            continue
                         }
                     }
                 }
+                closeModal(root)
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
@@ -128,6 +131,21 @@ class MainService : AccessibilityService() {
             .build()
 
         dispatchGesture(gesture, null, null)
+    }
+    // END
+
+    // Close modal
+
+
+    private fun closeModal(rootNode: AccessibilityNodeInfo) {
+        // Tìm tất cả các nút với text "X" (hoặc mô tả tương tự)
+        val closeButtons = rootNode.findAccessibilityNodeInfosByText("X")
+        
+        if (closeButtons.isNotEmpty()) {
+            val closeButton = closeButtons[0]
+            // Nếu nút đóng tồn tại, thực hiện click vào nó
+            closeButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        }
     }
     // END
 
