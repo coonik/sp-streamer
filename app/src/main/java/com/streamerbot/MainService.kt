@@ -21,9 +21,14 @@ class MainService : AccessibilityService() {
             while (true) {
                 val root = rootInActiveWindow ?: continue
 
-                val popup = findPopupParent(root, "Vòng quay")
+                val popup = findText(root, "Vòng quay")
                 if (popup != null) {
-                    spamClickCenter(popup)
+                    val quayButton = findText(root, "QUAY")
+                    if (quayButton != null) {
+                        quayButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    } else {
+                        Thread.sleep(10)
+                    }
                     continue
                 }
 
@@ -86,49 +91,6 @@ class MainService : AccessibilityService() {
             collectCountdownNodes(node.getChild(i), list)
         }
     }
-
-    private fun findPopupParent(node: AccessibilityNodeInfo?, keyword: String): AccessibilityNodeInfo? {
-        if (node == null) return null
-        if (node.text?.toString()?.contains(keyword) == true) {
-            return node.parent ?: node
-        }
-        for (i in 0 until node.childCount) {
-            val result = findPopupParent(node.getChild(i), keyword)
-            if (result != null) return result
-        }
-        return null
-    }
-
-    private fun spamClickCenter(node: AccessibilityNodeInfo) {
-        val bounds = android.graphics.Rect()
-        node.getBoundsInScreen(bounds)
-
-        // Nếu bounds là rỗng, bỏ qua không click
-        if (bounds.isEmpty) {
-            return
-        }
-
-        // Vị trí giữa của bounds
-        val centerX = bounds.centerX().toFloat()
-        val centerY = bounds.centerY().toFloat()
-
-        // Tạo path hình tròn có đường kính 10px
-        val radius = 5f // bán kính 5px, tức là đường kính 10px
-
-        val path = Path().apply {
-            moveTo(centerX, centerY)
-            // Vẽ một vòng tròn nhỏ
-            addCircle(centerX, centerY, radius, Path.Direction.CW)
-        }
-
-        val gesture = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 100)) // click trong 100ms
-            .build()
-
-        // Gửi gesture click
-        dispatchGesture(gesture, null, null)
-    }
-
 
     private fun findText(node: AccessibilityNodeInfo?, text: String): AccessibilityNodeInfo? {
         if (node == null) return null
