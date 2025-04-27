@@ -66,16 +66,20 @@ class MainService : AccessibilityService() {
         val metrics = Resources.getSystem().displayMetrics
         val screenWidth = metrics.widthPixels
         val screenHeight = metrics.heightPixels
-        val dpi = metrics.densityDpi
 
         val centerX = screenWidth / 2
-        val centerY = screenHeight / 2 - (dpi / 2.54f).toInt() // Di chuyển lên trên ~1cm
+        val centerY = screenHeight / 2
 
-        val distancePx = ((4f / 2.54f) * dpi).toInt() // ~2cm bán kính
+        val dpi = metrics.densityDpi
+        val cmToPx = dpi / 2.54f // 1cm = dpi / 2.54 pixels
+
+        val adjustY = (cmToPx).toInt() // Dời lên 1cm
+        val distancePx = ((4f / 2.54f) * dpi).toInt() // bán kính 2cm
+
+        val adjustedCenterY = centerY - adjustY
 
         for (node in allNodes) {
             if (!node.isVisibleToUser) continue
-            if (!node.isClickable) continue
 
             val bounds = Rect()
             node.getBoundsInScreen(bounds)
@@ -84,15 +88,23 @@ class MainService : AccessibilityService() {
             val nodeCenterY = (bounds.top + bounds.bottom) / 2
 
             val dx = nodeCenterX - centerX
-            val dy = nodeCenterY - centerY
+            val dy = nodeCenterY - adjustedCenterY
             val distance = Math.sqrt((dx * dx + dy * dy).toDouble()).toInt()
 
             if (distance <= distancePx) {
-                return node
+                var clickableNode: AccessibilityNodeInfo? = node
+                while (clickableNode != null && !clickableNode.isClickable) {
+                    clickableNode = clickableNode.parent
+                }
+                if (clickableNode != null) {
+                    Log.d("findButton", "Found node with className=${clickableNode.className}")
+                    return clickableNode
+                }
             }
         }
         return null
     }
+
 
 
     private fun findCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
