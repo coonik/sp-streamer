@@ -29,7 +29,7 @@ class MainService : AccessibilityService() {
                     if (btd) {
                         continue
                     }
-                    findButtonAboveClose(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    findButtonNearCenter(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     Thread.sleep(10)
                     continue
                 }
@@ -63,40 +63,42 @@ class MainService : AccessibilityService() {
         }.start()
     }
 
-    // Tìm node nằm trên nút Close ~2cm
-    private fun findButtonAboveClose(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
-        val closeButton = findCloseButton(root) ?: return null
-
-        val closeBounds = Rect()
-        closeButton.getBoundsInScreen(closeBounds)
-
+    // Tìm node clickable ở gần giữa màn hình (~2cm bán kính)
+    private fun findButtonNearCenter(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         val allNodes = ArrayList<AccessibilityNodeInfo>()
         findAllNodes(root, allNodes)
 
         val metrics = Resources.getSystem().displayMetrics
+        val screenWidth = metrics.widthPixels
+        val screenHeight = metrics.heightPixels
+
+        val centerX = screenWidth / 2
+        val centerY = screenHeight / 2
+
         val dpi = metrics.densityDpi
-        val distancePx = ((4f / 2.54f) * dpi).toInt()
+        val distancePx = ((4f / 2.54f) * dpi).toInt() // ~2cm bán kính
 
         for (node in allNodes) {
-            if (node == closeButton) continue
             if (!node.isVisibleToUser) continue
             if (!node.isClickable) continue
 
             val bounds = Rect()
             node.getBoundsInScreen(bounds)
 
-            val verticalDistance = closeBounds.top - bounds.bottom
-            val horizontalCenterClose = (closeBounds.left + closeBounds.right) / 2
-            val horizontalCenterNode = (bounds.left + bounds.right) / 2
+            val nodeCenterX = (bounds.left + bounds.right) / 2
+            val nodeCenterY = (bounds.top + bounds.bottom) / 2
 
-            val isAlignedHorizontally = Math.abs(horizontalCenterClose - horizontalCenterNode) < closeBounds.width() / 2
+            val dx = nodeCenterX - centerX
+            val dy = nodeCenterY - centerY
+            val distance = Math.sqrt((dx * dx + dy * dy).toDouble()).toInt()
 
-            if (verticalDistance in (distancePx - 50)..(distancePx + 50) && isAlignedHorizontally) {
+            if (distance <= distancePx) {
                 return node
             }
         }
         return null
     }
+
 
     private fun findCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         val nodeList = ArrayList<AccessibilityNodeInfo>()
