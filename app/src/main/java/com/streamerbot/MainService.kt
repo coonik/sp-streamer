@@ -36,7 +36,6 @@ class MainService : AccessibilityService() {
                         if (startButton != null) {
                             // Lưu lại vị trí của nút "Bắt đầu"
                             startButtonPosition = getNodeCenterPosition(startButton)
-                            spamClickCenter(startButton)
                             Thread.sleep(1000) // Sleep ngắn để tránh quá tải thao tác
                             closeModal(root)
                             continue
