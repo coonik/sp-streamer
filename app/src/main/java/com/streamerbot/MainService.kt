@@ -21,13 +21,15 @@ class MainService : AccessibilityService() {
             while (true) {
                 val root = rootInActiveWindow ?: continue
 
-                val popup = findText(root, "Vòng quay")
+                val popup = findPartialText(root, "Vòng quay")
                 if (popup != null) {
-                    val quayButton = findText(root, "QUAY")
+                    val quayButton = findPartialText(root, "QUAY")
                     if (quayButton != null) {
                         quayButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(3000)
+                        findModalWithCloseButton(root)
                     } else {
-                        Thread.sleep(10)
+                        Thread.sleep(1)
                     }
                     continue
                 }
@@ -64,6 +66,54 @@ class MainService : AccessibilityService() {
             }
         }.start()
     }
+
+    // New code to close QUAY modal
+    private fun findModalWithCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+        // Tìm modal chứa chữ "Vòng quay"
+        val popup = findPopupParent(root, "Vòng quay")
+        if (popup != null) {
+            // Sau khi tìm được modal, tìm nút đóng
+            val closeButton = findCloseIcon(popup)
+            if (closeButton != null) {
+                // Nếu tìm được nút close, click vào đó
+                closeButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            }
+        }
+        return popup
+    }
+
+    // Tìm nút icon "X" hoặc button đóng
+    private fun findCloseIcon(node: AccessibilityNodeInfo?): AccessibilityNodeInfo? {
+        if (node == null) return null
+        
+        // Kiểm tra các thuộc tính contentDescription hoặc các icon có thể là button đóng
+        for (i in 0 until node.childCount) {
+            val child = node.getChild(i)
+            val contentDescription = child?.contentDescription?.toString()
+            
+            // Kiểm tra nếu nó là nút đóng (icon "X")
+            if (contentDescription != null && (contentDescription.contains("Close", ignoreCase = true) || 
+                contentDescription.contains("Đóng", ignoreCase = true) || 
+                contentDescription.contains("X", ignoreCase = true))) {
+                return child
+            }
+        }
+        return null
+    }
+
+    // Tìm modal chứa một text cụ thể
+    private fun findPopupParent(node: AccessibilityNodeInfo?, keyword: String): AccessibilityNodeInfo? {
+        if (node == null) return null
+        if (node.text?.toString()?.contains(keyword) == true) {
+            return node.parent ?: node // Ưu tiên trả về parent nếu có
+        }
+        for (i in 0 until node.childCount) {
+            val result = findPopupParent(node.getChild(i), keyword)
+            if (result != null) return result
+        }
+        return null
+    }
+    // END
 
     private fun getGoButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         val countdownNodes = mutableListOf<AccessibilityNodeInfo>()
