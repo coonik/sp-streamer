@@ -23,15 +23,10 @@ class MainActivity : AppCompatActivity() {
         startButton = Button(this).apply {
             text = "Start"
             setOnClickListener {
-                if (!hasOverlayPermission()) {
-                    requestOverlayPermission()
-                } else if (!isAccessibilityServiceEnabled()) {
+                if (!isAccessibilityServiceEnabled()) {
                     requestAccessibilityPermission()
                 } else {
-                    Toast.makeText(this@MainActivity, "Starting Service in 2 seconds...", Toast.LENGTH_SHORT).show()
-                    handler.postDelayed({
-                        startAccessibilityService()
-                    }, 2000)
+                    startAccessibilityService();
                 }
             }
         }
@@ -40,21 +35,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startAccessibilityService() {
-        val intent = Intent(this, MainService::class.java)
-        startService(intent)
+        if (!isServiceRunning(MainService::class.java)) {
+            val intent = Intent(this, MainService::class.java)
+            startService(intent)
+            Toast.makeText(this, "Accessibility Service started.", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Service is already running.", Toast.LENGTH_SHORT).show()
+        }
     }
 
-    private fun hasOverlayPermission(): Boolean {
-        return Settings.canDrawOverlays(this)
-    }
-
-    private fun requestOverlayPermission() {
-        Toast.makeText(this, "Need permission to draw over apps", Toast.LENGTH_LONG).show()
-        val intent = Intent(
-            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-            Uri.parse("package:$packageName")
-        )
-        startActivity(intent)
+    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun isAccessibilityServiceEnabled(): Boolean {
