@@ -22,6 +22,11 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
+    - name: Install Build Tools (apksigner)
+      run: |
+        sdkmanager "build-tools;34.0.0"
+        echo "$ANDROID_HOME/build-tools/34.0.0" >> $GITHUB_PATH
+
     - name: Decode Keystore
       run: echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > my-release-key.jks
 
@@ -35,7 +40,7 @@ jobs:
       run: |
         APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
         echo "Found APK: $APK_PATH"
-        apksigner sign --ks my-release-key.jks \
+        $ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks my-release-key.jks \
           --ks-key-alias "${{ secrets.RELEASE_KEY_ALIAS }}" \
           --ks-pass pass:"${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" \
           --key-pass pass:"${{ secrets.RELEASE_KEY_PASSWORD }}" \
