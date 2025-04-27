@@ -126,15 +126,32 @@ class MainService : AccessibilityService() {
         val nodeList = ArrayList<AccessibilityNodeInfo>()
         findAllNodes(root, nodeList)
 
-        val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+        val metrics = Resources.getSystem().displayMetrics
+        val screenWidth = metrics.widthPixels
+        val screenHeight = metrics.heightPixels
+        val dpi = metrics.densityDpi
+
+        // Chuyển 4cm thành pixel
+        val minDistanceFromBottomPx = ((4f / 2.54f) * dpi).toInt()
+
         for (node in nodeList) {
             val bounds = Rect()
             node.getBoundsInScreen(bounds)
+
             val height = bounds.height()
             val width = bounds.width()
-            if (height < 200 && width < 200 && bounds.top > screenHeight / 2) {
-                if (node.className == "android.widget.Button" || node.className == "android.widget.ImageView") {
-                    return node
+
+            val centerX = (bounds.left + bounds.right) / 2
+
+            if (height < 200 && width < 200) {
+                val isCenterHorizontally = centerX in (screenWidth / 4)..(screenWidth * 3 / 4)
+                val isFarFromBottom = bounds.bottom < (screenHeight - minDistanceFromBottomPx)
+                val isInLowerHalf = bounds.top > screenHeight / 2
+
+                if (isCenterHorizontally && isFarFromBottom && isInLowerHalf) {
+                    if (node.className == "android.widget.Button" || node.className == "android.widget.ImageView") {
+                        return node
+                    }
                 }
             }
         }
