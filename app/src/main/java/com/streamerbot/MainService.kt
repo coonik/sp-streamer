@@ -28,7 +28,7 @@ class MainService : AccessibilityService() {
                         nhan.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     }
                 } else {
-                    swipeUp()
+                    performScrollOrSwipe()
                 }
 
                 Thread.sleep(2000)
@@ -56,24 +56,32 @@ class MainService : AccessibilityService() {
         return null
     }
 
-    private fun swipeUp() {
+    private fun performScrollOrSwipe() {
+        val scrolled = performGlobalAction(GLOBAL_ACTION_SCROLL_FORWARD)
+        if (!scrolled) {
+            swipeManually()
+        }
+    }
+
+    private fun swipeManually() {
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
 
-        val centerX = (screenWidth / 2).toFloat()
-        val startY = (screenHeight * 0.6f)
-        val endY = (screenHeight * 0.3f)
+        val startX = (screenWidth / 2).toFloat()
+        val startY = (screenHeight * 0.7).toFloat()  // Bắt đầu từ 70% chiều cao
+        val endY = (screenHeight * 0.4).toFloat()    // Vuốt lên tới 40% chiều cao
 
         val path = Path().apply {
-            moveTo(centerX, startY)
-            lineTo(centerX, endY)
+            moveTo(startX, startY)
+            lineTo(startX, endY)
         }
 
         val gesture = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 500)) // vuốt trong 500ms
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 500)) // 500ms vuốt cho nhẹ
             .build()
 
         dispatchGesture(gesture, null, null)
     }
+
 }
