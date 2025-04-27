@@ -125,7 +125,7 @@ class MainService : AccessibilityService() {
         }
 
         val gesture = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 10)) // click trong 100ms
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 100)) // click trong 100ms
             .build()
 
         // Gửi gesture click
