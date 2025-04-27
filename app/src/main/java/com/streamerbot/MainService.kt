@@ -57,12 +57,21 @@ class MainService : AccessibilityService() {
     }
 
     private fun swipeUp() {
-        val path = Path()
-        path.moveTo(500f, 1500f)
-        path.lineTo(500f, 500f)
+        val displayMetrics = resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+
+        val centerX = (screenWidth / 2).toFloat()
+        val startY = (screenHeight * 0.6f)
+        val endY = (screenHeight * 0.3f)
+
+        val path = Path().apply {
+            moveTo(centerX, startY)
+            lineTo(centerX, endY)
+        }
 
         val gesture = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 500))
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 500)) // vuốt trong 500ms
             .build()
 
         dispatchGesture(gesture, null, null)
