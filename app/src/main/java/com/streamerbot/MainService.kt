@@ -21,28 +21,26 @@ class MainService : AccessibilityService() {
             while (true) {
                 val root = rootInActiveWindow ?: continue
 
-                val popup = findPopupParent(rootInActiveWindow, "Vòng quay")
+                val popup = findPopupParent(root, "Vòng quay")
                 if (popup != null) {
                     spamClickCenter(popup)
-                    Thread.sleep(10) 
-                    continue // Bỏ qua hành động khác, tiếp tục vòng lặp
+                    Thread.sleep(10)
+                    continue
                 }
 
-                const goButton = getGoButton(root);
-                if (goButton) {
+                val goButton = getGoButton(root)
+                if (goButton != null) {
                     Thread.sleep(5000)
-                    
+
                     val fl = findPartialText(root, "Theo dõi")
                     if (fl != null) {
                         fl.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     }
                     goButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-
-                    continue // bỏ qua xử lý bên dưới, vòng while check lại ngay
+                    continue
                 }
 
                 val xuStreamer = findText(root, "Xu Streamer")
-                
                 if (xuStreamer != null) {
                     val nhan = findPartialText(root, "Lưu")
                     if (nhan != null) {
@@ -66,21 +64,20 @@ class MainService : AccessibilityService() {
         }.start()
     }
 
-    // Trả về node GO Button nếu có, còn không thì null
     private fun getGoButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
-        // Tìm hết các countdown (định dạng "mm:ss")
         val countdownNodes = mutableListOf<AccessibilityNodeInfo>()
         collectCountdownNodes(root, countdownNodes)
+
+        if (countdownNodes.isEmpty()) return null
+
         val lastCountdown = countdownNodes[countdownNodes.size - 1]
 
-        if (countdownNodes.size === 3 || (countdownNode.size == 2 && findPartialText(root, "Xu Streamer") == null)) {
-            return lastCountdown.parent;
+        if (countdownNodes.size == 3 || (countdownNodes.size == 2 && findPartialText(root, "Xu Streamer") == null)) {
+            return lastCountdown.parent
         }
-
-        return null;
+        return null
     }
 
-    // Tìm tất cả node text dạng "mm:ss"
     private fun collectCountdownNodes(node: AccessibilityNodeInfo?, list: MutableList<AccessibilityNodeInfo>) {
         if (node == null) return
 
@@ -97,7 +94,7 @@ class MainService : AccessibilityService() {
     private fun findPopupParent(node: AccessibilityNodeInfo?, keyword: String): AccessibilityNodeInfo? {
         if (node == null) return null
         if (node.text?.toString()?.contains(keyword) == true) {
-            return node.parent ?: node // Ưu tiên trả về parent nếu có
+            return node.parent ?: node
         }
         for (i in 0 until node.childCount) {
             val result = findPopupParent(node.getChild(i), keyword)
@@ -118,10 +115,9 @@ class MainService : AccessibilityService() {
         }
 
         val gesture = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 50)) // click trong 50ms
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 50))
             .build()
 
-        // Gửi gesture click
         dispatchGesture(gesture, null, null)
     }
 
@@ -175,8 +171,8 @@ class MainService : AccessibilityService() {
         val screenHeight = displayMetrics.heightPixels
 
         val startX = (screenWidth / 2).toFloat()
-        val startY = (screenHeight * 0.7).toFloat()  // Bắt đầu từ 70% chiều cao
-        val endY = (screenHeight * 0.4).toFloat()    // Vuốt lên tới 40% chiều cao
+        val startY = (screenHeight * 0.7).toFloat()
+        val endY = (screenHeight * 0.4).toFloat()
 
         val path = Path().apply {
             moveTo(startX, startY)
@@ -184,10 +180,9 @@ class MainService : AccessibilityService() {
         }
 
         val gesture = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 500)) // 500ms vuốt cho nhẹ
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 500))
             .build()
 
         dispatchGesture(gesture, null, null)
     }
-
 }
