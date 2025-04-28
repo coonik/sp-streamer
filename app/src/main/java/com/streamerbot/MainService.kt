@@ -26,37 +26,8 @@ class MainService : AccessibilityService() {
             while (true) {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
-
-                val popup = findClickableNodeByText(root, "vòng quay")
-                if (popup != null) {
+                
                     clickLoop()
-                    continue
-                }
-
-                findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-
-                val goButton = getGoButton(root)
-                if (goButton != null) {
-                    findClickableNodeByText(root, "Theo dõi", exactMatch = true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    goButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    Thread.sleep(5000)
-                    continue
-                }
-
-                val xuStreamer = findClickableNodeByText(root, "xu streamer")
-                if (xuStreamer != null) {
-                    findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-
-                    val countdownText = findCountdownNear(xuStreamer)
-                    if (countdownText != null) {
-                        val minutes = extractMinutes(countdownText)
-                        if (minutes > 5) {
-                            performScrollOrSwipe()
-                        }
-                    }
-                } else {
-                    performScrollOrSwipe()
-                }
 
                 Thread.sleep(3000)
             }
@@ -85,11 +56,7 @@ class MainService : AccessibilityService() {
                 val currentRoot = rootInActiveWindow ?: continue
                 currentRoot.refresh()
 
-                val isFound = findClickableNodeByText(currentRoot, "vòng quay")
-                if (isFound == null) {
-                    isClicking = false // dừng khi không tìm thấy nút
-                    break
-                }
+            
 
                 // 2. Nếu còn thì tiếp tục click
                 val path = Path().apply {
