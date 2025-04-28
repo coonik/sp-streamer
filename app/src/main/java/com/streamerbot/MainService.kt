@@ -19,7 +19,7 @@ import android.content.res.Resources
 
 class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
-    private val isClick = false;
+    private var isClick = false;
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
