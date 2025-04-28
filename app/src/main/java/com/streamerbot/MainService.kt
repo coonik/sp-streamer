@@ -71,10 +71,6 @@ class MainService : AccessibilityService() {
     private fun clickLoop() {
                 val currentRoot = rootInActiveWindow ?: return
                 currentRoot.refresh()
-        val popup = findClickableNodeByText(currentRoot, "vòng quay")
-        if (popup == null) {
-            return
-        }
 
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
@@ -98,7 +94,7 @@ class MainService : AccessibilityService() {
                 super.onCompleted(gestureDescription)
                 
                 // Random delay 80–150ms cho tự nhiên
-                val delay = (80..150).random().toLong()
+                val delay = (800..1500).random().toLong()
                 handler.postDelayed({ clickLoop() }, delay)
 
                 // (Tùy chọn) Highlight click
