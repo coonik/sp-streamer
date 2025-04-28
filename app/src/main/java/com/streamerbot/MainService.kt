@@ -68,13 +68,16 @@ class MainService : AccessibilityService() {
                     .build()
 
                 dispatchGesture(gesture, null, null)
-
-                // Hiển thị hiệu ứng highlight sau mỗi lần click
                 val highlightView = HighlightView(applicationContext)
-                highlightView.setHighlight(centerX, centerY, 50f)  // 50f là bán kính highlight, có thể thay đổi
+                highlightView.setHighlight(centerX, centerY, 50f)
+
+                // Sau 300ms, tự động clear highlight
+                Handler(Looper.getMainLooper()).postDelayed({
+                    highlightView.clearHighlight()
+                }, 1000)
 
                 // Delay giữa các lần click
-                Thread.sleep(10) // click cực nhanh
+                Thread.sleep(5000) // click cực nhanh
             }
         }.start()
     }
