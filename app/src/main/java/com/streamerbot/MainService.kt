@@ -12,7 +12,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.view.View
 
-
 class MainService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
@@ -67,14 +66,15 @@ class MainService : AccessibilityService() {
     private var isClicking = false
 
     private fun clickLoop() {
-        if (isClicking) return // tránh gọi nhiều lần
+        // Nếu đang click thì không làm gì
+        if (isClicking) return
+
         isClicking = true
 
         Thread {
             val metrics = Resources.getSystem().displayMetrics
             val screenWidth = metrics.widthPixels
             val screenHeight = metrics.heightPixels
-
             val dpi = metrics.densityDpi
             val cmToPx = dpi / 2.54f // 1cm = dpi/2.54
 
@@ -84,9 +84,10 @@ class MainService : AccessibilityService() {
             while (isClicking) {
                 val currentRoot = rootInActiveWindow ?: continue
                 currentRoot.refresh()
+
                 val isFound = findClickableNodeByText(currentRoot, "vòng quay")
                 if (isFound == null) {
-                    isClicking = false
+                    isClicking = false // dừng khi không tìm thấy nút
                     break
                 }
 
@@ -101,11 +102,15 @@ class MainService : AccessibilityService() {
 
                 dispatchGesture(gesture, null, null)
 
+                // Hiển thị hiệu ứng highlight sau mỗi lần click
+                val highlightView = HighlightView(applicationContext)
+                highlightView.setHighlight(centerX, centerY, 50f)  // 50f là bán kính highlight, có thể thay đổi
+
+                // Delay giữa các lần click
                 Thread.sleep(10) // click cực nhanh
             }
         }.start()
     }
-    
 
     private fun findCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         val nodeList = ArrayList<AccessibilityNodeInfo>()
@@ -245,10 +250,7 @@ class MainService : AccessibilityService() {
 
         return null
     }
-
 }
-
-
 
 class HighlightView(context: Context) : View(context) {
     private val paint = Paint().apply {
