@@ -38,7 +38,7 @@ class MainService : AccessibilityService() {
             while (true) {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
-                val popup = findClickableNodeByText(root, "Vòng Quay")
+                val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
                     clickLoop()
                     Thread.sleep(5000)
@@ -244,6 +244,20 @@ class MainService : AccessibilityService() {
             .addStroke(GestureDescription.StrokeDescription(path, 0, 500))
             .build()
         dispatchGesture(gesture, null, null)
+    }
+
+    private fun findText(root: AccessibilityNodeInfo, searchText: String): AccessibilityNodeInfo? {
+        val nodeList = mutableListOf<AccessibilityNodeInfo>()
+        findAllNodes(root, nodeList)
+
+        // Duyệt qua danh sách node và tìm kiếm văn bản
+        for (node in nodeList) {
+            val text = node.text?.toString()?.trim()
+            if (text != null && text.equals(searchText, ignoreCase = true)) {
+                return node
+            }
+        }
+        return null
     }
 
     private fun findClickableNodeByText(node: AccessibilityNodeInfo?, keyword: String, exactMatch: Boolean = false): AccessibilityNodeInfo? {
