@@ -12,6 +12,10 @@ import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.view.View
 import android.view.WindowManager
+import android.view.accessibility.AccessibilityNodeInfo
+import android.graphics.Rect
+import android.content.res.Resources
+
 
 class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
