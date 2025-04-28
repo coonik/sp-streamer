@@ -7,6 +7,11 @@ import android.graphics.Rect
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.content.res.Resources
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.view.View
+
 
 class MainService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
