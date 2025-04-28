@@ -19,7 +19,6 @@ import android.content.res.Resources
 
 class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
-    private var isClick = false;
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
@@ -40,12 +39,14 @@ class MainService : AccessibilityService() {
                 root.refresh()
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
+                    val bdt = findText(root, "Bắt đầu trong")
+                    if (bdt != null) {
+                        Thread.sleep(100)
+                        continue
+                    }
                     clickLoop()
-                    Thread.sleep(5000)
-                    isClick = true;
-                    continue
+                    Thread.sleep(2000)
                 }
-                isClick = false
 
                 findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
@@ -59,6 +60,7 @@ class MainService : AccessibilityService() {
 
                 val xuStreamer = findClickableNodeByText(root, "xu streamer")
                 if (xuStreamer != null) {
+                    clickLoop()
                     findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                     val countdownText = findCountdownNear(xuStreamer)
@@ -77,8 +79,6 @@ class MainService : AccessibilityService() {
     }
 
     private fun clickLoop() {
-        if (!isClick) return
-
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
@@ -99,18 +99,11 @@ class MainService : AccessibilityService() {
         dispatchGesture(gesture, object : GestureResultCallback() {
             override fun onCompleted(gestureDescription: GestureDescription?) {
                 super.onCompleted(gestureDescription)
-                
-                // Random delay 80–150ms cho tự nhiên
-                val delay = (800..1500).random().toLong()
-                handler.postDelayed({ clickLoop() }, delay)
-
-                // (Tùy chọn) Highlight click
                 showHighlight(x, y)
             }
 
             override fun onCancelled(gestureDescription: GestureDescription?) {
                 super.onCancelled(gestureDescription)
-                handler.postDelayed({ clickLoop() }, 300)
             }
         }, null)
     }
