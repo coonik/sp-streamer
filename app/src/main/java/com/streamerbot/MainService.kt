@@ -3,131 +3,126 @@ package com.streamerbot
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
-import android.content.res.Resources
-import kotlinx.coroutines.*
+import android.graphics.Path
+import android.os.Handler
+import android.os.Looper
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Path
 import android.graphics.PixelFormat
 import android.view.View
 import android.view.WindowManager
-import android.os.Handler
-import android.os.Looper
 
 class MainService : AccessibilityService() {
+
+    private var isAutoClicking = true
+    private val handler = Handler(Looper.getMainLooper())
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        startChecking()
+        startAutoClicking()
     }
 
-    private fun startChecking() {
-        Thread {
-            while (true) {
-                val root = rootInActiveWindow ?: continue
-                root.refresh()
-                clickRewardButton()
-                Thread.sleep(3000)
-            }
-        }.start()
+    override fun onDestroy() {
+        super.onDestroy()
+        isAutoClicking = false
     }
 
-    private fun performScrollOrSwipe() {
-        val scrolled = performGlobalAction(4096)
-        if (!scrolled) {
-            swipeManually()
-        }
+    private fun startAutoClicking() {
+        clickLoop()
     }
 
-    private fun swipeManually() {
+    private fun clickLoop() {
+        if (!isAutoClicking) return
+
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
 
-        val startX = (screenWidth / 2).toFloat()
-        val startY = (screenHeight * 0.7f)
-        val endY = (screenHeight * 0.4f)
+        val physicalScreenHeightCm = 14.5f
+        val pixelPerCm = screenHeight / physicalScreenHeightCm
+
+        val x = screenWidth / 2f
+        val y = screenHeight - (8f * pixelPerCm)
 
         val path = Path().apply {
-            moveTo(startX, startY)
-            lineTo(startX, endY)
-        }
-
-        val gesture = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 500))
-            .build()
-        dispatchGesture(gesture, null, null)
-    }
-
-    private fun findClickableNodeByText(node: AccessibilityNodeInfo?, keyword: String): AccessibilityNodeInfo? {
-        if (node == null) return null
-
-        val text = node.text?.toString()?.trim()?.lowercase()
-        if (text != null && text.contains(keyword.lowercase())) {
-            var clickableNode: AccessibilityNodeInfo? = node
-            while (clickableNode != null && !clickableNode.isClickable) {
-                clickableNode = clickableNode.parent
-            }
-            if (clickableNode != null && clickableNode.isVisibleToUser) {
-                return clickableNode
-            }
-        }
-
-        for (i in 0 until node.childCount) {
-            val result = findClickableNodeByText(node.getChild(i), keyword)
-            if (result != null) return result
-        }
-
-        return null
-    }
-
-    private fun clickRewardButton() {
-        val displayMetrics = resources.displayMetrics
-        val screenWidth = displayMetrics.widthPixels
-        val screenHeight = displayMetrics.heightPixels
-
-        // Tính toán tọa độ của nút quay thưởng
-        val x = (screenWidth / 2).toFloat() // Giữa màn hình
-        val y = (screenHeight - (8 * screenHeight / 14.5f)).toFloat() // 8cm từ dưới lên
-
-        val buttonRadius = (1.5f * screenWidth / 7.5f) // Đường kính nút khoảng 1.5cm, tỷ lệ với chiều rộng màn hình
-        val startX = x
-        val startY = y
-
-        // Tạo gesture để click vào vị trí
-        val path = Path().apply {
-            moveTo(startX, startY)
+            moveTo(x, y)
         }
         val gesture = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 100))
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 50)) // nhanh
             .build()
-        
-        // Thực hiện click
-        dispatchGesture(gesture, null, null)
 
-        // Tạo và thêm HighlightView vào màn hình
+        dispatchGesture(gesture, object : GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription?) {
+                super.onCompleted(gestureDescription)
+                
+                // Random delay 80–150ms cho tự nhiên
+                val delay = (80..150).random().toLong()
+                handler.postDelayed({ clickLoop() }, delay)
+
+                // (Tùy chọn) Highlight click
+                showHighlight(x, y)
+            }
+
+            override fun onCancelled(gestureDescription: GestureDescription?) {
+                super.onCancelled(gestureDescription)
+                handler.postDelayed({ clickLoop() }, 300)
+            }
+        }, null)
+    }
+
+    private fun showHighlight(x: Float, y: Float) {
         val highlightView = HighlightView(this)
-        highlightView.setHighlight(startX, startY, buttonRadius)
+        highlightView.setHighlight(x, y, 50f) // 50px bán kính
 
-        // Thêm HighlightView vào cửa sổ chính
         val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             PixelFormat.TRANSLUCENT
         )
         windowManager.addView(highlightView, params)
 
-        // Sau 1 giây, xóa vùng highlight
         Handler(Looper.getMainLooper()).postDelayed({
             highlightView.clearHighlight()
             windowManager.removeView(highlightView)
-        }, 1000)
+        }, 100) // Highlight 100ms rồi biến mất
+    }
+}
+
+class HighlightView(context: Context) : View(context) {
+    private val paint = Paint().apply {
+        color = 0x55FF0000 // đỏ nhạt
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+    private var highlightX = -1f
+    private var highlightY = -1f
+    private var highlightRadius = 0f
+
+    fun setHighlight(x: Float, y: Float, radius: Float) {
+        highlightX = x
+        highlightY = y
+        highlightRadius = radius
+        invalidate()
     }
 
+    fun clearHighlight() {
+        highlightX = -1f
+        highlightY = -1f
+        highlightRadius = 0f
+        invalidate()
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        if (highlightX >= 0 && highlightY >= 0 && highlightRadius > 0) {
+            canvas.drawCircle(highlightX, highlightY, highlightRadius, paint)
+        }
+    }
 }
