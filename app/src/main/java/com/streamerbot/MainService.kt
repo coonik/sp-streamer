@@ -19,6 +19,7 @@ import android.content.res.Resources
 
 class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
+    private val isClick = false;
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
@@ -34,10 +35,10 @@ class MainService : AccessibilityService() {
 
     private fun startAutoClicking() {
         Thread {
+            clickLoop()
             while (true) {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
-                clickLoop()
 
                 findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
@@ -51,6 +52,7 @@ class MainService : AccessibilityService() {
 
                 val xuStreamer = findClickableNodeByText(root, "xu streamer")
                 if (xuStreamer != null) {
+                    isClick = true;
                     findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                     val countdownText = findCountdownNear(xuStreamer)
@@ -61,6 +63,7 @@ class MainService : AccessibilityService() {
                         }
                     }
                 } else {
+                    isClick = false
                     performScrollOrSwipe()
                 }
                 Thread.sleep(3000)
@@ -69,8 +72,7 @@ class MainService : AccessibilityService() {
     }
 
     private fun clickLoop() {
-                val currentRoot = rootInActiveWindow ?: return
-                currentRoot.refresh()
+        if (!isClick) return
 
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
