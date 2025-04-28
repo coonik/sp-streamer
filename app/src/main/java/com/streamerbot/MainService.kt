@@ -35,10 +35,10 @@ class MainService : AccessibilityService() {
 
     private fun startAutoClicking() {
         Thread {
-            clickLoop()
             while (true) {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
+                clickLoop()
 
                 findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
