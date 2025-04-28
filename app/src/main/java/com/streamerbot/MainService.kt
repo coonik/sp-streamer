@@ -65,7 +65,7 @@ class MainService : AccessibilityService() {
     }
 
     private fun clickLoop() {
-                val currentRoot = rootInActiveWindow ?: continue
+                val currentRoot = rootInActiveWindow ?: return
                 currentRoot.refresh()
         val popup = findClickableNodeByText(currentRoot, "vòng quay")
         if (popup == null) {
