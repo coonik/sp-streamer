@@ -38,7 +38,14 @@ class MainService : AccessibilityService() {
             while (true) {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
-                clickLoop()
+                val popup = findClickableNodeByText(root, "Vòng Quay")
+                if (popup != null) {
+                    clickLoop()
+                    Thread.sleep(5000)
+                    isClick = true;
+                    continue
+                }
+                isClick = false
 
                 findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
@@ -52,7 +59,6 @@ class MainService : AccessibilityService() {
 
                 val xuStreamer = findClickableNodeByText(root, "xu streamer")
                 if (xuStreamer != null) {
-                    isClick = true;
                     findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                     val countdownText = findCountdownNear(xuStreamer)
@@ -63,7 +69,6 @@ class MainService : AccessibilityService() {
                         }
                     }
                 } else {
-                    isClick = false
                     performScrollOrSwipe()
                 }
                 Thread.sleep(3000)
