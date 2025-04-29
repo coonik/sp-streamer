@@ -20,6 +20,7 @@ class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
     private var currentHighlightView: HighlightView? = null
     private var currentHighlightVisible = false
+    private var isNeedToClose = false
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
@@ -44,10 +45,12 @@ class MainService : AccessibilityService() {
                 if (popup != null) {
                     clickByPosition()
                     Thread.sleep(50)
+                    isNeedToClose = true
                     continue
                 }
-                val isVideo = findText(root, "Thêm bình luận")
-                if (isVideo == null) {
+
+                if (isNeedToClose) {
+                    isNeedToClose = false
                     Thread.sleep(500)
                     clickByPosition(2.5f)
                     clickByPosition(2.75f)
