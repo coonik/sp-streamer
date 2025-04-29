@@ -45,6 +45,13 @@ class MainService : AccessibilityService() {
                 }
                 Thread.sleep(1000)
                 clickCloseButton()
+                clickCloseButton()
+                clickCloseButton()
+                clickCloseButton()
+                clickCloseButton()
+                clickCloseButton()
+                clickCloseButton()
+                clickCloseButton()
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
@@ -120,7 +127,7 @@ class MainService : AccessibilityService() {
         Handler(Looper.getMainLooper()).postDelayed({
             highlightView.clearHighlight()
             windowManager.removeView(highlightView)
-        }, 100) // Highlight 100ms rồi biến mất
+        }, 500) // Highlight 100ms rồi biến mất
     }
 
     private fun clickCloseButton() {
