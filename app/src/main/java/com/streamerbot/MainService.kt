@@ -15,7 +15,6 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
 import android.content.res.Resources
-import android.graphics.Color
 
 
 class MainService : AccessibilityService() {
@@ -145,7 +144,7 @@ class MainService : AccessibilityService() {
         Handler(Looper.getMainLooper()).postDelayed({
             highlightView.clearHighlight()
             windowManager.removeView(highlightView)
-        }, 500) // Highlight 100ms rồi biến mất
+        }, 100) // Highlight 100ms rồi biến mất
     }
 
     private fun findAllNodes(node: AccessibilityNodeInfo?, list: MutableList<AccessibilityNodeInfo>) {
@@ -273,7 +272,7 @@ class MainService : AccessibilityService() {
 
 class HighlightView(context: Context) : View(context) {
     private val paint = Paint().apply {
-        color = Color.argb(85, 255, 0, 0)
+        color = 0x55FF0000 // đỏ nhạt
         style = Paint.Style.FILL
         isAntiAlias = true
     }
