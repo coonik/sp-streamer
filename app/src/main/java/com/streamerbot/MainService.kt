@@ -39,19 +39,18 @@ class MainService : AccessibilityService() {
                 root.refresh()
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
-                    clickLoop()
+                    clickByPosition()
                     Thread.sleep(50)
                     continue
                 }
                 Thread.sleep(1000)
-                clickCloseButton()
-                clickCloseButton()
-                clickCloseButton()
-                clickCloseButton()
-                clickCloseButton()
-                clickCloseButton()
-                clickCloseButton()
-                clickCloseButton()
+                // Click nut close
+                clickByPosition(2.5f)
+                clickByPosition(2.5f)
+                clickByPosition(2.5f)
+                clickByPosition(2.5f)
+                clickByPosition(2.5f)
+                clickByPosition(2.5f)
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
@@ -79,8 +78,8 @@ class MainService : AccessibilityService() {
             }
         }.start()
     }
-
-    private fun clickLoop() {
+    
+    private fun clickByPosition(offsetFromSpinButtonCm: Float = 0f) {
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
@@ -89,13 +88,14 @@ class MainService : AccessibilityService() {
         val pixelPerCm = screenHeight / physicalScreenHeightCm
 
         val x = screenWidth / 2f
-        val y = screenHeight - (8f * pixelPerCm)
+        val baseY = screenHeight - (8f * pixelPerCm) // Vị trí nút quay thưởng
+        val y = baseY + (offsetFromSpinButtonCm * pixelPerCm) // Thêm offset nếu có
 
         val path = Path().apply {
             moveTo(x, y)
         }
         val gesture = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 50)) // nhanh
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 50))
             .build()
 
         dispatchGesture(gesture, object : GestureResultCallback() {
@@ -129,37 +129,6 @@ class MainService : AccessibilityService() {
             windowManager.removeView(highlightView)
         }, 500) // Highlight 100ms rồi biến mất
     }
-
-    private fun clickCloseButton() {
-        val displayMetrics = resources.displayMetrics
-        val screenWidth = displayMetrics.widthPixels
-        val screenHeight = displayMetrics.heightPixels
-
-        val physicalScreenHeightCm = 14.5f
-        val pixelPerCm = screenHeight / physicalScreenHeightCm
-
-        val x = screenWidth / 2f
-        val y = screenHeight - (8f * pixelPerCm) + (2.5f * pixelPerCm) // đi xuống thêm 2.5cm từ nút quay thưởng
-
-        val path = Path().apply {
-            moveTo(x, y)
-        }
-        val gesture = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 50))
-            .build()
-
-        dispatchGesture(gesture, object : GestureResultCallback() {
-            override fun onCompleted(gestureDescription: GestureDescription?) {
-                super.onCompleted(gestureDescription)
-                showHighlight(x, y) // Highlight vị trí click
-            }
-
-            override fun onCancelled(gestureDescription: GestureDescription?) {
-                super.onCancelled(gestureDescription)
-            }
-        }, null)
-    }
-
 
     private fun findAllNodes(node: AccessibilityNodeInfo?, list: MutableList<AccessibilityNodeInfo>) {
         if (node == null) return
