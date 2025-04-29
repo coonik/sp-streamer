@@ -16,9 +16,10 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
 import android.content.res.Resources
 
-
 class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
+    private var currentHighlightView: HighlightView? = null
+    private var currentHighlightVisible = false
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
@@ -30,6 +31,7 @@ class MainService : AccessibilityService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        removeHighlight()
     }
 
     private fun startAutoClicking() {
@@ -95,7 +97,7 @@ class MainService : AccessibilityService() {
             }
         }.start()
     }
-    
+
     private fun clickByPosition(offsetFromSpinButtonCm: Float = 0f) {
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
@@ -105,8 +107,8 @@ class MainService : AccessibilityService() {
         val pixelPerCm = screenHeight / physicalScreenHeightCm
 
         val x = screenWidth / 2f
-        val baseY = screenHeight - (8f * pixelPerCm) // Vị trí nút quay thưởng
-        val y = baseY + (offsetFromSpinButtonCm * pixelPerCm) // Thêm offset nếu có
+        val baseY = screenHeight - (8f * pixelPerCm)
+        val y = baseY + (offsetFromSpinButtonCm * pixelPerCm)
 
         val path = Path().apply {
             moveTo(x, y)
@@ -127,10 +129,11 @@ class MainService : AccessibilityService() {
         }, null)
     }
 
-
     private fun showHighlight(x: Float, y: Float) {
+        if (currentHighlightVisible) return
+
         val highlightView = HighlightView(this)
-        highlightView.setHighlight(x, y, 50f) // 50px bán kính
+        highlightView.setHighlight(x, y, 50f)
 
         val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val params = WindowManager.LayoutParams(
@@ -141,11 +144,22 @@ class MainService : AccessibilityService() {
             PixelFormat.TRANSLUCENT
         )
         windowManager.addView(highlightView, params)
+        currentHighlightView = highlightView
+        currentHighlightVisible = true
 
         Handler(Looper.getMainLooper()).postDelayed({
-            highlightView.clearHighlight()
-            windowManager.removeView(highlightView)
-        }, 100) // Highlight 100ms rồi biến mất
+            removeHighlight()
+        }, 100)
+    }
+
+    private fun removeHighlight() {
+        currentHighlightView?.let {
+            it.clearHighlight()
+            val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            windowManager.removeView(it)
+            currentHighlightView = null
+            currentHighlightVisible = false
+        }
     }
 
     private fun findAllNodes(node: AccessibilityNodeInfo?, list: MutableList<AccessibilityNodeInfo>) {
@@ -160,21 +174,16 @@ class MainService : AccessibilityService() {
         val countdownNodes = mutableListOf<AccessibilityNodeInfo>()
         collectCountdownNodes(root, countdownNodes)
 
-        if (countdownNodes.isEmpty()) {
-            return null
-        }
-
+        if (countdownNodes.isEmpty()) return null
         val lastCountdown = countdownNodes.last()
 
-        if (countdownNodes.size == 3 || (countdownNodes.size == 2 && findClickableNodeByText(root, "xu streamer") == null)) {
-            return lastCountdown
-        }
-        return null
+        return if (countdownNodes.size == 3 || (countdownNodes.size == 2 && findClickableNodeByText(root, "xu streamer") == null)) {
+            lastCountdown
+        } else null
     }
 
     private fun collectCountdownNodes(node: AccessibilityNodeInfo?, list: MutableList<AccessibilityNodeInfo>) {
         if (node == null) return
-
         val text = node.text?.toString()
         if (text != null && text.matches(Regex("\\d{1,2}:\\d{2}"))) {
             list.add(node)
@@ -231,8 +240,6 @@ class MainService : AccessibilityService() {
     private fun findText(root: AccessibilityNodeInfo, searchText: String): AccessibilityNodeInfo? {
         val nodeList = mutableListOf<AccessibilityNodeInfo>()
         findAllNodes(root, nodeList)
-
-        // Duyệt qua danh sách node và tìm kiếm văn bản
         for (node in nodeList) {
             val text = node.text?.toString()?.trim()
             if (text != null && text.equals(searchText, ignoreCase = true)) {
@@ -273,7 +280,7 @@ class MainService : AccessibilityService() {
 
 class HighlightView(context: Context) : View(context) {
     private val paint = Paint().apply {
-        color = 0x55FF0000 // đỏ nhạt
+        color = 0x33FF0000  // đỏ rất nhạt (20% opacity)
         style = Paint.Style.FILL
         isAntiAlias = true
     }
