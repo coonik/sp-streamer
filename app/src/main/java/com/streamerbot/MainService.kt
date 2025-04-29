@@ -43,12 +43,8 @@ class MainService : AccessibilityService() {
                     Thread.sleep(50)
                     continue
                 }
-
-                val clBtn = findCloseButton(root)
-                if (clBtn != null) {
-                    clBtn.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    Thread.sleep(1000)
-                }
+                Thread.sleep(1000)
+                clickCloseButton()
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
@@ -72,7 +68,7 @@ class MainService : AccessibilityService() {
                 } else {
                     performScrollOrSwipe()
                 }
-                Thread.sleep(3000)
+                Thread.sleep(2000)
             }
         }.start()
     }
@@ -127,38 +123,36 @@ class MainService : AccessibilityService() {
         }, 100) // Highlight 100ms rồi biến mất
     }
 
-    private fun findCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
-        val nodeList = ArrayList<AccessibilityNodeInfo>()
-        findAllNodes(root, nodeList)
+    private fun clickCloseButton() {
+        val displayMetrics = resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
 
-        val metrics = Resources.getSystem().displayMetrics
-        val screenWidth = metrics.widthPixels
-        val screenHeight = metrics.heightPixels
-        val dpi = metrics.densityDpi
-        val minDistanceFromBottomPx = ((4f / 2.54f) * dpi).toInt()
+        val physicalScreenHeightCm = 14.5f
+        val pixelPerCm = screenHeight / physicalScreenHeightCm
 
-        for (node in nodeList) {
-            val bounds = Rect()
-            node.getBoundsInScreen(bounds)
+        val x = screenWidth / 2f
+        val y = screenHeight - (8f * pixelPerCm) + (2.5f * pixelPerCm) // đi xuống thêm 2.5cm từ nút quay thưởng
 
-            val height = bounds.height()
-            val width = bounds.width()
-            val centerX = (bounds.left + bounds.right) / 2
-
-            if (height < 200 && width < 200) {
-                val isCenterHorizontally = centerX in (screenWidth / 4)..(screenWidth * 3 / 4)
-                val isFarFromBottom = bounds.bottom < (screenHeight - minDistanceFromBottomPx)
-                val isInLowerHalf = bounds.top > screenHeight / 2
-
-                if (isCenterHorizontally && isFarFromBottom && isInLowerHalf) {
-                    if (node.className == "android.widget.Button" || node.className == "android.widget.ImageView") {
-                        return node
-                    }
-                }
-            }
+        val path = Path().apply {
+            moveTo(x, y)
         }
-        return null
+        val gesture = GestureDescription.Builder()
+            .addStroke(GestureDescription.StrokeDescription(path, 0, 50))
+            .build()
+
+        dispatchGesture(gesture, object : GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription?) {
+                super.onCompleted(gestureDescription)
+                showHighlight(x, y) // Highlight vị trí click
+            }
+
+            override fun onCancelled(gestureDescription: GestureDescription?) {
+                super.onCancelled(gestureDescription)
+            }
+        }, null)
     }
+
 
     private fun findAllNodes(node: AccessibilityNodeInfo?, list: MutableList<AccessibilityNodeInfo>) {
         if (node == null) return
