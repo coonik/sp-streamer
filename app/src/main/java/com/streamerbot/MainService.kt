@@ -43,9 +43,6 @@ class MainService : AccessibilityService() {
                     Thread.sleep(50)
                     continue
                 }
-                Thread.sleep(1000)
-                // Click nut close
-                clickByPosition(2.5f)
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
@@ -69,7 +66,7 @@ class MainService : AccessibilityService() {
                 } else {
                     performScrollOrSwipe()
                 }
-                Thread.sleep(2000)
+                Thread.sleep(3000)
             }
         }.start()
     }
@@ -137,7 +134,17 @@ class MainService : AccessibilityService() {
         val countdownNodes = mutableListOf<AccessibilityNodeInfo>()
         collectCountdownNodes(root, countdownNodes)
 
-        if (countdownNodes.isEmpty()) return null
+        if (countdownNodes.isEmpty()) {
+                Thread.sleep(500)
+                // Click nut close
+                clickByPosition(2.5f)
+                clickByPosition(2.75f)
+                clickByPosition(3f)
+                clickByPosition(2.5f)
+                clickByPosition(2.75f)
+                clickByPosition(3f)
+            return null
+        }
 
         val lastCountdown = countdownNodes.last()
 
