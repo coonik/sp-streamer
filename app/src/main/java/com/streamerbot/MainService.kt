@@ -37,15 +37,6 @@ class MainService : AccessibilityService() {
             while (true) {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
-                
-                Thread.sleep(2000)
-                clickByPosition(2.5f)
-                clickByPosition(2.75f)
-                clickByPosition(3f)
-                clickByPosition(2.5f)
-                clickByPosition(2.75f)
-                clickByPosition(3f)
-                continue
 
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
@@ -53,6 +44,14 @@ class MainService : AccessibilityService() {
                     Thread.sleep(50)
                     continue
                 }
+                Thread.sleep(500)
+                clickByPosition(2.5f)
+                clickByPosition(2.75f)
+                clickByPosition(3f)
+                clickByPosition(2.5f)
+                clickByPosition(2.75f)
+                clickByPosition(3f)
+                Thread.sleep(500)
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
@@ -76,7 +75,7 @@ class MainService : AccessibilityService() {
                 } else {
                     performScrollOrSwipe()
                 }
-                Thread.sleep(3000)
+                Thread.sleep(2000)
             }
         }.start()
     }
