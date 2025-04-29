@@ -31,6 +31,9 @@ jobs:
     - name: Decode Keystore
       run: echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.jks
 
+    - name: Clean project
+      run: ./gradlew clean
+
     - name: Build APK
       run: ./gradlew assembleRelease
 
