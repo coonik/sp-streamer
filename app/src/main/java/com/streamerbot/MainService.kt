@@ -60,7 +60,8 @@ class MainService : AccessibilityService() {
                 if (goButton != null) {
                     findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
-                    val quayMinutes = extractMinutes(goButton)
+                    val quayCountdownText = goButton.text?.toString() ?: ""
+                    val quayMinutes = extractMinutes(quayCountdownText)
                     if (quayMinutes > 5) {
                         performScrollOrSwipe()
                         Thread.sleep(500)
