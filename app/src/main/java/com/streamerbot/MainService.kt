@@ -46,11 +46,6 @@ class MainService : AccessibilityService() {
                 Thread.sleep(1000)
                 // Click nut close
                 clickByPosition(2.5f)
-                clickByPosition(2.5f)
-                clickByPosition(2.5f)
-                clickByPosition(2.5f)
-                clickByPosition(2.5f)
-                clickByPosition(2.5f)
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
