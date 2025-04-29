@@ -21,6 +21,7 @@ class MainService : AccessibilityService() {
     private var currentHighlightView: HighlightView? = null
     private var currentHighlightVisible = false
     private var isNeedToClose = false
+    private var isNeedToRecheck = false
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
@@ -43,60 +44,67 @@ class MainService : AccessibilityService() {
 
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
-                    clickByPosition()
-                    Thread.sleep(50)
                     isNeedToClose = true
+                    clickByPosition()
+                    Thread.sleep(10)
                     continue
                 }
 
                 if (isNeedToClose) {
+                    Thread.sleep(500)
+                    clickByPosition(2f)
+                    clickByPosition(2.25f)
+                    clickByPosition(2.5f)
+                    clickByPosition(2.75f)
+                    clickByPosition(3f)
+                    Thread.sleep(500)
                     isNeedToClose = false
-                    Thread.sleep(500)
-                    clickByPosition(2.5f)
-                    clickByPosition(2.75f)
-                    clickByPosition(3f)
-                    clickByPosition(2.5f)
-                    clickByPosition(2.75f)
-                    clickByPosition(3f)
-                    Thread.sleep(500)
+                    isNeedToRecheck = false
                 }
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
+                    isNeedToRecheck = true
                     findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                     val quayCountdownText = goButton.text?.toString() ?: ""
                     val quayMinutes = extractMinutes(quayCountdownText)
-                    if (quayMinutes > 5) {
-                        performScrollOrSwipe()
-                        Thread.sleep(500)
-                        continue
-                    }
-                    if (quayMinutes > 1) {
+                    if (quayMinutes <= 5) {
                         findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                         Thread.sleep(1000)
                         continue
                     }
-                    goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    Thread.sleep(5000)
-                    continue
+                    if (quayMinutes <= 1) {
+                        goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(5000)
+                        continue
+                    }
                 }
 
                 val xuStreamer = findClickableNodeByText(root, "xu streamer")
                 if (xuStreamer != null) {
+                    isNeedToRecheck = true
                     findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                     val countdownText = findCountdownNear(xuStreamer)
                     if (countdownText != null) {
                         val minutes = extractMinutes(countdownText)
-                        if (minutes > 5) {
-                            performScrollOrSwipe()
+                        if (minutes <= 5) {
+                            Thread.sleep(1000)
+                            continue
                         }
+                    } else {
+                        Thread.sleep(100)
+                        continue
                     }
-                } else {
-                    performScrollOrSwipe()
                 }
-                Thread.sleep(4000)
+                if (isNeedToRecheck) {
+                    isNeedToRecheck = false
+                    Thread.sleep(1000)
+                    continue
+                }
+                performScrollOrSwipe()
+                Thread.sleep(3500)
             }
         }.start()
     }
