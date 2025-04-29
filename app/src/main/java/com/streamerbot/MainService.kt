@@ -15,6 +15,7 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
 import android.content.res.Resources
+import android.graphics.Color
 
 
 class MainService : AccessibilityService() {
@@ -73,7 +74,7 @@ class MainService : AccessibilityService() {
                         Thread.sleep(1000)
                         continue
                     }
-                    goButton.parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     Thread.sleep(5000)
                     continue
                 }
