@@ -44,7 +44,11 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                val clBtn = findCloseButton(root)
+                if (clBtn != null) {
+                    clBtn.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    Thread.sleep(1000)
+                }
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
@@ -56,7 +60,6 @@ class MainService : AccessibilityService() {
 
                 val xuStreamer = findClickableNodeByText(root, "xu streamer")
                 if (xuStreamer != null) {
-                    clickLoop()
                     findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                     val countdownText = findCountdownNear(xuStreamer)
