@@ -39,17 +39,9 @@ class MainService : AccessibilityService() {
                 root.refresh()
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
-                    val chuaQuay = getGoButton(root)
-                    if (chuaQuay != null) {
-                        Thread.sleep(50)
-                        continue
-                    }
                     clickLoop()
                     Thread.sleep(50)
-                    clickLoop()
-                    Thread.sleep(50)
-                    clickLoop()
-                    Thread.sleep(2000)
+                    continue
                 }
 
                 findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
