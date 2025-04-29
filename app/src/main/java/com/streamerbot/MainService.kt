@@ -155,7 +155,7 @@ class MainService : AccessibilityService() {
         }
     }
 
-    private fun getGoButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+    private fun getGoButton(root: AccessibilityNodeInfo) {
         val countdownNodes = mutableListOf<AccessibilityNodeInfo>()
         collectCountdownNodes(root, countdownNodes)
 
