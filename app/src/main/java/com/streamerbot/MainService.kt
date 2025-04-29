@@ -15,12 +15,11 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
 import android.content.res.Resources
+import android.graphics.Color
 
 
 class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
-    private var highlightView: HighlightView? = null
-    private var isHighlightShowing = false
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
@@ -61,7 +60,19 @@ class MainService : AccessibilityService() {
                 val goButton = getGoButton(root)
                 if (goButton != null) {
                     findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                    goButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+
+                    val quayMinutes = extractMinutes(goButton)
+                    if (quayMinutes > 5) {
+                        performScrollOrSwipe()
+                        Thread.sleep(500)
+                        continue
+                    }
+                    if (quayMinutes > 1) {
+                        findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(1000)
+                        continue
+                    }
+                    goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     Thread.sleep(5000)
                     continue
                 }
@@ -116,14 +127,12 @@ class MainService : AccessibilityService() {
         }, null)
     }
 
-private fun showHighlight(x: Float, y: Float) {
-    val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
-    if (highlightView == null) {
-        highlightView = HighlightView(this)
-    }
+    private fun showHighlight(x: Float, y: Float) {
+        val highlightView = HighlightView(this)
+        highlightView.setHighlight(x, y, 50f) // 50px bán kính
 
-    if (!isHighlightShowing) {
+        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -132,23 +141,12 @@ private fun showHighlight(x: Float, y: Float) {
             PixelFormat.TRANSLUCENT
         )
         windowManager.addView(highlightView, params)
-        isHighlightShowing = true
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            highlightView.clearHighlight()
+            windowManager.removeView(highlightView)
+        }, 500) // Highlight 100ms rồi biến mất
     }
-
-    highlightView?.setHighlight(x, y, 50f)
-
-    Handler(Looper.getMainLooper()).postDelayed({
-        highlightView?.clearHighlight()
-        if (isHighlightShowing) {
-            try {
-                windowManager.removeView(highlightView)
-            } catch (_: Exception) {
-                // View có thể đã bị remove — bỏ qua lỗi
-            }
-            isHighlightShowing = false
-        }
-    }, 200)
-}
 
     private fun findAllNodes(node: AccessibilityNodeInfo?, list: MutableList<AccessibilityNodeInfo>) {
         if (node == null) return
@@ -169,7 +167,7 @@ private fun showHighlight(x: Float, y: Float) {
         val lastCountdown = countdownNodes.last()
 
         if (countdownNodes.size == 3 || (countdownNodes.size == 2 && findClickableNodeByText(root, "xu streamer") == null)) {
-            return lastCountdown.parent
+            return lastCountdown
         }
         return null
     }
