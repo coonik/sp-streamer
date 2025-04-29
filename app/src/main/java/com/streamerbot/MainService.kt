@@ -15,7 +15,6 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
 import android.content.res.Resources
-import android.graphics.Color
 
 
 class MainService : AccessibilityService() {
@@ -62,19 +61,7 @@ class MainService : AccessibilityService() {
                 val goButton = getGoButton(root)
                 if (goButton != null) {
                     findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-
-                    val quayMinutes = extractMinutes(goButton)
-                    if (quayMinutes > 5) {
-                        performScrollOrSwipe()
-                        Thread.sleep(500)
-                        continue
-                    }
-                    if (quayMinutes > 1) {
-                        findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        Thread.sleep(1000)
-                        continue
-                    }
-                    goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    goButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     Thread.sleep(5000)
                     continue
                 }
@@ -182,7 +169,7 @@ private fun showHighlight(x: Float, y: Float) {
         val lastCountdown = countdownNodes.last()
 
         if (countdownNodes.size == 3 || (countdownNodes.size == 2 && findClickableNodeByText(root, "xu streamer") == null)) {
-            return lastCountdown
+            return lastCountdown.parent
         }
         return null
     }
