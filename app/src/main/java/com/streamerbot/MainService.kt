@@ -37,6 +37,16 @@ class MainService : AccessibilityService() {
             while (true) {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
+                
+                Thread.sleep(2000)
+                clickByPosition(2.5f)
+                clickByPosition(2.75f)
+                clickByPosition(3f)
+                clickByPosition(2.5f)
+                clickByPosition(2.75f)
+                clickByPosition(3f)
+                continue
+
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
                     clickByPosition()
@@ -135,14 +145,6 @@ class MainService : AccessibilityService() {
         collectCountdownNodes(root, countdownNodes)
 
         if (countdownNodes.isEmpty()) {
-                Thread.sleep(500)
-                // Click nut close
-                clickByPosition(2.5f)
-                clickByPosition(2.75f)
-                clickByPosition(3f)
-                clickByPosition(2.5f)
-                clickByPosition(2.75f)
-                clickByPosition(3f)
             return null
         }
 
