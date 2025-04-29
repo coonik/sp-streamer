@@ -39,11 +39,15 @@ class MainService : AccessibilityService() {
                 root.refresh()
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
-                    val bdt = findText(root, "Bắt đầu trong")
-                    if (bdt != null) {
-                        Thread.sleep(100)
+                    val chuaQuay = getGoButton(root)
+                    if (chuaQuay != null) {
+                        Thread.sleep(50)
                         continue
                     }
+                    clickLoop()
+                    Thread.sleep(50)
+                    clickLoop()
+                    Thread.sleep(50)
                     clickLoop()
                     Thread.sleep(2000)
                 }
