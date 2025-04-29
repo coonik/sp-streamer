@@ -69,11 +69,6 @@ class MainService : AccessibilityService() {
 
                     val quayCountdownText = goButton.text?.toString() ?: ""
                     val quayMinutes = extractMinutes(quayCountdownText)
-                    if (quayMinutes <= 5) {
-                        findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        Thread.sleep(1000)
-                        continue
-                    }
                     if (quayMinutes <= 1) {
                         goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                         Thread.sleep(5000)
@@ -84,7 +79,6 @@ class MainService : AccessibilityService() {
                 val xuStreamer = findClickableNodeByText(root, "xu streamer")
                 if (xuStreamer != null) {
                     isNeedToRecheck = true
-                    findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                     val countdownText = findCountdownNear(xuStreamer)
                     if (countdownText != null) {
@@ -94,7 +88,9 @@ class MainService : AccessibilityService() {
                             continue
                         }
                     } else {
-                        Thread.sleep(100)
+                        findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(1000)
                         continue
                     }
                 }
