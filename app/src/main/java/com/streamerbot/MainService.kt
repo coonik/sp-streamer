@@ -44,14 +44,17 @@ class MainService : AccessibilityService() {
                     Thread.sleep(50)
                     continue
                 }
-                Thread.sleep(500)
-                clickByPosition(2.5f)
-                clickByPosition(2.75f)
-                clickByPosition(3f)
-                clickByPosition(2.5f)
-                clickByPosition(2.75f)
-                clickByPosition(3f)
-                Thread.sleep(500)
+                val isVideo = findText(root, "Thêm bình luận")
+                if (isVideo == null) {
+                    Thread.sleep(500)
+                    clickByPosition(2.5f)
+                    clickByPosition(2.75f)
+                    clickByPosition(3f)
+                    clickByPosition(2.5f)
+                    clickByPosition(2.75f)
+                    clickByPosition(3f)
+                    Thread.sleep(500)
+                }
 
                 val goButton = getGoButton(root)
                 if (goButton != null) {
