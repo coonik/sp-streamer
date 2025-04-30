@@ -53,7 +53,7 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                val isLiveMode = findText(root, "Chào mừng đến Shopee Live")
+                val isLiveMode = findClickableNodeByText(root, "Top nhà sáng tạo")
                 if (isLiveMode != null) {
                     var quayMinutes = 5
                     val goButton = getGoButton(root)
