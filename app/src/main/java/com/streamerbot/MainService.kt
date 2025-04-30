@@ -43,7 +43,7 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                val isNeedToClose = findText(root, "Xem thành tích của người chơi khác")
+                val isNeedToClose = findClickableNodeByText(root, "Xem thành tích của người chơi khác")
                 if (isNeedToClose != null) {
                     findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
