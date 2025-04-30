@@ -47,7 +47,6 @@ class MainService : AccessibilityService() {
                 }
 
                 val isNeedToClose = findClickableNodeByText(root, "Xem thành tích của người chơi khác")
-                Log.d("MainService", "Is need to close: $isNeedToClose")
                 if (isNeedToClose != null) {
                     findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
@@ -55,9 +54,9 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                val videoMode = findInputWithPlaceholder(root, "Thêm bình luận")
-                Log.d("MainService", "Video mode: $videoMode")
-                if (videoMode == null) {
+                val mode = findActiveTab(root)
+                Log.d("MainService", "TAB mode: $mode")
+                if (mode == "Live) {
                     var quayMinutes = 5
                     val goButton = getGoButton(root)
                     if (goButton != null) {
@@ -124,15 +123,23 @@ class MainService : AccessibilityService() {
             }
         }, null)
     }
-
-    private fun findInputWithPlaceholder(root: AccessibilityNodeInfo, placeholder: String): AccessibilityNodeInfo? {
+    
+    private fun findActiveTab(root: AccessibilityNodeInfo): String? {
         val nodeList = mutableListOf<AccessibilityNodeInfo>()
         findAllNodes(root, nodeList)
 
         for (node in nodeList) {
-            val hint = node.getText()?.toString()
-            if (hint != null && hint.contains(placeholder, ignoreCase = true)) {
-                return node
+            // Kiểm tra xem tab có được chọn hay không
+            if (node.className == "android.widget.TextView" && node.isSelected) {
+                val text = node.text?.toString()
+                if (text != null) {
+                    if (text.contains("Video", ignoreCase = true)) {
+                        return "Video"
+                    }
+                    if (text.contains("Live", ignoreCase = true)) {
+                        return "Live"
+                    }
+                }
             }
         }
         return null
@@ -216,11 +223,8 @@ class MainService : AccessibilityService() {
         if (node != null) {
             val countdownText = findCountdownNear(node) ?: findCountdownNear(node.parent)
             if (countdownText != null) {
-                Log.d("MainService", "Tìm thấy countdown [$countdownText] gần [$keyword]")
                 return 1
             }
-        } else {
-            Log.d("MainService", "Không tìm thấy text: $keyword")
         }
         return 0
     }
