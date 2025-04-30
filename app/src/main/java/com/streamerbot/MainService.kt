@@ -46,7 +46,7 @@ class MainService : AccessibilityService() {
                 if (popup != null) {
                     isNeedToClose = true
                     clickByPosition()
-                    Thread.sleep(10)
+                    Thread.sleep(50)
                     continue
                 }
 
@@ -287,7 +287,7 @@ class MainService : AccessibilityService() {
 
 class HighlightView(context: Context) : View(context) {
     private val paint = Paint().apply {
-        color = 0x33FF0000  // đỏ rất nhạt (20% opacity)
+        color = 0x99FF0000.toInt()
         style = Paint.Style.FILL
         isAntiAlias = true
     }
