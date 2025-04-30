@@ -53,8 +53,8 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                val isVideoMode = findText(root, "Thêm bình luận")
-                if (isVideoMode == null) {
+                val isLiveMode = findText(root, "Chào mừng đến Shopee Live")
+                if (isLiveMode != null) {
                     var quayMinutes = 5
                     val goButton = getGoButton(root)
                     if (goButton != null) {
