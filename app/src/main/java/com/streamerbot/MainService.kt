@@ -159,12 +159,14 @@ class MainService : AccessibilityService() {
     }
 
     private fun findSubCountdown(root: AccessibilityNodeInfo, countdown: String): Int {
-        return findClickableNodeByText(root, countdown)?.let { cd ->
-            findCountdownNear(cd)?.let {
+        val cd = findClickableNodeByText(root, countdown)
+        if (cd != null) {
+            val countdownText = findCountdownNear(cd)
+            if (countdownText != null) {
                 return 1
             }
-            return 0
-        } ?: 0
+        }
+        return 0
     }
 
 
