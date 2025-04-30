@@ -43,11 +43,9 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                clickByPosition(2f)
-                    clickByPosition(2.25f)
-                    clickByPosition(2.5f)
-                    clickByPosition(2.75f)
-                    clickByPosition(3f)
+                clickByPosition()
+                    Thread.sleep(1000)
+                    continue
 
                 val isLiveMode = findText(root, "Có khuyến mãi không shop")
                 if (isLiveMode != null) {
