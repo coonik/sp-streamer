@@ -45,10 +45,16 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                val isNeedToClose = findClickableNodeByText(root, "Xem thành tích của người chơi khác")
+                if (isNeedToClose != null) {
+                    findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
-                val isLiveMode = findText(root, "Có khuyến mãi không shop")
-                if (isLiveMode != null) {
+                    Thread.sleep(50)
+                    continue
+                }
+
+                val isVideoMode = findText(root, "Thêm bình luận")
+                if (isVideoMode == null) {
                     var quayMinutes = 5
                     val goButton = getGoButton(root)
                     if (goButton != null) {
