@@ -12,7 +12,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
 import android.content.res.Resources
-import android.widget.Toast
+import android.util.Log
 
 
 class MainService : AccessibilityService() {
@@ -216,9 +216,7 @@ class MainService : AccessibilityService() {
         if (countdownNodes.isEmpty()) return null
         val lastCountdown = countdownNodes.last()
         val totalSubCoundown = findSubCountdown(root, "Điểm danh 7 ngày") + findSubCountdown(root, "Xem Live")
-        handler.post {
-            Toast.makeText(applicationContext, "Total count: $totalSubCoundown, SIZE: ${countdownNodes.size}", Toast.LENGTH_SHORT).show()
-        }
+        Log.d("MainService", "Total count: $totalSubCoundown, size: $countdownNodes.size")
 
         return if (countdownNodes.size == (2 + totalSubCoundown) || (countdownNodes.size == (1 + totalSubCoundown) && findClickableNodeByText(root, "xu streamer") == null)) {
             lastCountdown
