@@ -56,12 +56,13 @@ class MainService : AccessibilityService() {
                     isNeedToClose = false
                 }
 
+                val quayMinutes = 5
                 val goButton = getGoButton(root)
                 if (goButton != null) {
                     findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                     val quayCountdownText = goButton.text?.toString() ?: ""
-                    val quayMinutes = extractMinutes(quayCountdownText)
+                    quayMinutes = extractMinutes(quayCountdownText)
                     if (quayMinutes <= 1) {
                         goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                         Thread.sleep(5000)
@@ -85,7 +86,7 @@ class MainService : AccessibilityService() {
                         continue
                     }
                 }
-                if (goButton != null) {
+                if (goButton != null && quayMinutes <= 5) {
                     continue
                 }
                 performScrollOrSwipe()
