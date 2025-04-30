@@ -45,7 +45,8 @@ class MainService : AccessibilityService() {
 
                 val isNeedToClose = findText(root, "Xem thành tích của người chơi khác")
                 if (isNeedToClose != null) {
-                    clickByPosition(2.75f)
+                    findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+
                     Thread.sleep(50)
                     continue
                 }
@@ -117,6 +118,40 @@ class MainService : AccessibilityService() {
                 showHighlight(x, y)
             }
         }, null)
+    }
+
+
+    private fun findCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+        val nodeList = ArrayList<AccessibilityNodeInfo>()
+        findAllNodes(root, nodeList)
+
+        val metrics = Resources.getSystem().displayMetrics
+        val screenWidth = metrics.widthPixels
+        val screenHeight = metrics.heightPixels
+        val dpi = metrics.densityDpi
+        val minDistanceFromBottomPx = ((4f / 2.54f) * dpi).toInt()
+
+        for (node in nodeList) {
+            val bounds = Rect()
+            node.getBoundsInScreen(bounds)
+
+            val height = bounds.height()
+            val width = bounds.width()
+            val centerX = (bounds.left + bounds.right) / 2
+
+            if (height < 200 && width < 200) {
+                val isCenterHorizontally = centerX in (screenWidth / 4)..(screenWidth * 3 / 4)
+                val isFarFromBottom = bounds.bottom < (screenHeight - minDistanceFromBottomPx)
+                val isInLowerHalf = bounds.top > screenHeight / 2
+
+                if (isCenterHorizontally && isFarFromBottom && isInLowerHalf) {
+                    if (node.className == "android.widget.Button" || node.className == "android.widget.ImageView") {
+                        return node
+                    }
+                }
+            }
+        }
+        return null
     }
 
     private fun showHighlight(x: Float, y: Float) {
