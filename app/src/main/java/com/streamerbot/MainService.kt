@@ -43,9 +43,12 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                clickByPosition(2.5f)
-                    Thread.sleep(1000)
+                val isNeedToClose = findText(root, "Xem thành tích của người chơi khác")
+                if (isNeedToClose ) {
+                    clickByPosition(2.75f)
+                    Thread.sleep(50)
                     continue
+                }
 
                 val isLiveMode = findText(root, "Có khuyến mãi không shop")
                 if (isLiveMode != null) {
