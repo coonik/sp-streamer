@@ -56,42 +56,38 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                val mode = findActiveTab(root)
-                Log.d("MainService", "TAB mode: $mode")
-                if (mode == "Live") {
-                    var quayMinutes = 5
-                    val goButton = getGoButton(root)
-                    if (goButton != null) {
-                        findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                var quayMinutes = 5
+                val goButton = getGoButton(root)
+                if (goButton != null) {
+                    findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
-                        val quayCountdownText = goButton.text?.toString() ?: ""
-                        quayMinutes = extractMinutes(quayCountdownText)
-                        if (quayMinutes <= 1) {
-                            goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                            Thread.sleep(5000)
-                            continue
-                        }
+                    val quayCountdownText = goButton.text?.toString() ?: ""
+                    quayMinutes = extractMinutes(quayCountdownText)
+                    if (quayMinutes <= 1) {
+                        goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(5000)
+                        continue
                     }
+                }
 
-                    val xuStreamer = findClickableNodeByText(root, "xu streamer")
-                    if (xuStreamer != null) {
-                        val countdownText = findCountdownNear(xuStreamer)
-                        if (countdownText != null) {
-                            val minutes = extractMinutes(countdownText)
-                            if (minutes <= 5) {
-                                Thread.sleep(1000)
-                                continue
-                            }
-                        } else {
-                            findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                            findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                val xuStreamer = findClickableNodeByText(root, "xu streamer")
+                if (xuStreamer != null) {
+                    val countdownText = findCountdownNear(xuStreamer)
+                    if (countdownText != null) {
+                        val minutes = extractMinutes(countdownText)
+                        if (minutes <= 5) {
                             Thread.sleep(1000)
                             continue
                         }
-                    }
-                    if (goButton != null && quayMinutes <= 5) {
+                    } else {
+                        findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        Thread.sleep(1000)
                         continue
                     }
+                }
+                if (goButton != null && quayMinutes <= 5) {
+                    continue
                 }
                 performScrollOrSwipe()
                 Thread.sleep(3500)
@@ -156,28 +152,30 @@ class MainService : AccessibilityService() {
         val screenHeight = metrics.heightPixels
         val dpi = metrics.densityDpi
 
-        val diameterPx = ((1.5f / 2.54f) * dpi).toInt() // đường kính ~1.5cm
-        val distanceFromBottomPx = ((4f / 2.54f) * dpi).toInt() // cách đáy ~4cm
-        val horizontalTolerance = 50 // cho phép lệch tối đa 50px khỏi giữa
+        // Đổi cm sang pixels
+        val centerX = screenWidth / 2
+        val centerY = screenHeight - ((4f / 2.54f) * dpi).toInt()
+
+        val halfWidth = ((1f / 2.54f) * dpi).toInt() // 1cm mỗi bên
+        val halfHeight = ((1.5f / 2.54f) * dpi).toInt() // 1.5cm mỗi bên
+
+        val targetRect = Rect(
+            centerX - halfWidth,
+            centerY - halfHeight,
+            centerX + halfWidth,
+            centerY + halfHeight
+        )
 
         for (node in nodeList) {
             val bounds = Rect()
             node.getBoundsInScreen(bounds)
 
-            val height = bounds.height()
-            val width = bounds.width()
-            val centerX = (bounds.left + bounds.right) / 2
-            val centerY = (bounds.top + bounds.bottom) / 2
+            val isInTargetZone = Rect.intersects(bounds, targetRect)
+            val isSmall = bounds.width() < 200 && bounds.height() < 200
 
-            val isSizeMatch = height in (diameterPx - 30)..(diameterPx + 30) &&
-                            width in (diameterPx - 30)..(diameterPx + 30)
-
-            val isCenteredHorizontally = Math.abs(centerX - screenWidth / 2) <= horizontalTolerance
-            val isAbout4cmFromBottom = (screenHeight - bounds.bottom) in (distanceFromBottomPx - 60)..(distanceFromBottomPx + 60)
-
-            if (isSizeMatch && isCenteredHorizontally && isAbout4cmFromBottom) {
-                if ((node.className == "android.widget.ImageView" || node.className == "android.widget.Button") &&
-                    node.isVisibleToUser && node.isEnabled && node.isClickable
+            if (isInTargetZone && isSmall) {
+                if ((node.className == "android.widget.ImageView" || node.className == "android.widget.Button")
+                    && node.isVisibleToUser && node.isEnabled
                 ) {
                     return node
                 }
@@ -186,6 +184,7 @@ class MainService : AccessibilityService() {
 
         return null
     }
+
 
 
     private fun showHighlight(x: Float, y: Float) {
@@ -244,6 +243,8 @@ class MainService : AccessibilityService() {
         collectCountdownNodes(root, countdownNodes)
 
         if (countdownNodes.isEmpty()) return null
+
+        if (countdownNodes.size == 1 && findClickableNodeByText(root, "Top nhà sáng tạo") == null) return null
         val lastCountdown = countdownNodes.last()
         val totalSubCoundown = findSubCountdown(root, "Điểm danh 7 ngày") + findSubCountdown(root, "Xem Live")
 
