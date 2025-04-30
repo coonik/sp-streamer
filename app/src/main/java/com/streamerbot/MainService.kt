@@ -2,15 +2,15 @@ package com.streamerbot
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
-import android.view.accessibility.AccessibilityEvent
+import android.content.Context
 import android.graphics.Path
+import android.graphics.PixelFormat
 import android.os.Handler
 import android.os.Looper
-import android.view.View
 import android.view.WindowManager
+import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import android.content.res.Resources
-import com.streamerbot.HighlightView
+
 
 class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
@@ -174,7 +174,7 @@ class MainService : AccessibilityService() {
 
         if (countdownNodes.isEmpty()) return null
         val lastCountdown = countdownNodes.last()
-        val totalSubCoundown = findSubCountdown("Điểm danh 7 ngày") + findSubCountdown("Xem live")
+        val totalSubCoundown = findSubCountdown(root, "Điểm danh 7 ngày") + findSubCountdown(root, "Xem live")
 
         return if (countdownNodes.size == (2 + totalSubCoundown) || (countdownNodes.size == (1 + totalSubCoundown) && findClickableNodeByText(root, "xu streamer") == null)) {
             lastCountdown
