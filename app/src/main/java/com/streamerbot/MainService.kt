@@ -45,13 +45,7 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                val isNeedToClose = findClickableNodeByText(root, "Xem thành tích của người chơi khác")
-                if (isNeedToClose != null) {
-                    findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-
-                    Thread.sleep(50)
-                    continue
-                }
+                findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                 val isLiveMode = findText(root, "Có khuyến mãi không shop")
                 if (isLiveMode != null) {
