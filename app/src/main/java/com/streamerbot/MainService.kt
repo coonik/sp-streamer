@@ -44,7 +44,7 @@ class MainService : AccessibilityService() {
                 }
 
                 val isNeedToClose = findText(root, "Xem thành tích của người chơi khác")
-                if (isNeedToClose ) {
+                if (isNeedToClose != null) {
                     clickByPosition(2.75f)
                     Thread.sleep(50)
                     continue
