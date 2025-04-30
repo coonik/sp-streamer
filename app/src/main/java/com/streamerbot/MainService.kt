@@ -36,24 +36,24 @@ class MainService : AccessibilityService() {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
 
+                val popup = findText(root, "Vòng Quay")
+                if (popup != null) {
+                    clickByPosition()
+                    Thread.sleep(50)
+                    continue
+                }
+
+                val isNeedToClose = findText(root, "Xem thành tích của người chơi khác")
+                if (isNeedToClose != null) {
+                    clickByPosition(2f)
+                    clickByPosition(2.25f)
+                    clickByPosition(2.5f)
+                    clickByPosition(2.75f)
+                    clickByPosition(3f)
+                }
+
                 val isLiveMode = findText(root, "Có khuyến mãi không shop")
                 if (isLiveMode != null) {
-                    val popup = findText(root, "Vòng Quay")
-                    if (popup != null) {
-                        clickByPosition()
-                        Thread.sleep(50)
-                        continue
-                    }
-
-                    val isNeedToClose = findText(root, "Xem thành tích của người chơi khác")
-                    if (isNeedToClose != null) {
-                        clickByPosition(2f)
-                        clickByPosition(2.25f)
-                        clickByPosition(2.5f)
-                        clickByPosition(2.75f)
-                        clickByPosition(3f)
-                    }
-
                     var quayMinutes = 5
                     val goButton = getGoButton(root)
                     if (goButton != null) {
