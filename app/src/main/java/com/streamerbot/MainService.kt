@@ -54,8 +54,9 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                val isLiveMode = findClickableNodeByText(root, "Top nhà sáng tạo")
-                if (isLiveMode != null) {
+                val videoMode = findInputWithPlaceholder(root, "Thêm bình luận")
+                Log.d("MainService", "Video mode: $videoMode")
+                if (videoMode == null) {
                     var quayMinutes = 5
                     val goButton = getGoButton(root)
                     if (goButton != null) {
@@ -123,6 +124,18 @@ class MainService : AccessibilityService() {
         }, null)
     }
 
+    private fun findInputWithPlaceholder(root: AccessibilityNodeInfo, placeholder: String): AccessibilityNodeInfo? {
+        val nodeList = mutableListOf<AccessibilityNodeInfo>()
+        findAllNodes(root, nodeList)
+
+        for (node in nodeList) {
+            val hint = node.getText()?.toString()
+            if (hint != null && hint.contains(placeholder, ignoreCase = true)) {
+                return node
+            }
+        }
+        return null
+    }
 
     private fun findCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         val nodeList = ArrayList<AccessibilityNodeInfo>()
