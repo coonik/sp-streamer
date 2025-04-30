@@ -10,6 +10,8 @@ import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import com.streamerbot.HighlightView
+
 
 class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
