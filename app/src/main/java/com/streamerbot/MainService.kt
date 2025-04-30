@@ -85,6 +85,9 @@ class MainService : AccessibilityService() {
                         continue
                     }
                 }
+                if (goButton != null) {
+                    continue
+                }
                 performScrollOrSwipe()
                 Thread.sleep(3500)
             }
