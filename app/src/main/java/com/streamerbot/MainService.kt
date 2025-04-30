@@ -43,7 +43,7 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                clickByPosition()
+                clickByPosition(2.5f)
                     Thread.sleep(1000)
                     continue
 
