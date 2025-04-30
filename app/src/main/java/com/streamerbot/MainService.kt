@@ -10,6 +10,7 @@ import android.os.Looper
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import android.graphics.Rect
 
 
 class MainService : AccessibilityService() {
