@@ -56,7 +56,7 @@ class MainService : AccessibilityService() {
                     isNeedToClose = false
                 }
 
-                val quayMinutes = 5
+                var quayMinutes = 5
                 val goButton = getGoButton(root)
                 if (goButton != null) {
                     findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
