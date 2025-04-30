@@ -43,14 +43,11 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                val isNeedToClose = findText(root, "Xem thành tích của người chơi khác")
-                if (isNeedToClose != null) {
-                    clickByPosition(2f)
+                clickByPosition(2f)
                     clickByPosition(2.25f)
                     clickByPosition(2.5f)
                     clickByPosition(2.75f)
                     clickByPosition(3f)
-                }
 
                 val isLiveMode = findText(root, "Có khuyến mãi không shop")
                 if (isLiveMode != null) {
