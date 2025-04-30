@@ -16,7 +16,6 @@ class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
     private var currentHighlightView: HighlightView? = null
     private var currentHighlightVisible = false
-    private var isNeedToClose = false
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
@@ -37,24 +36,22 @@ class MainService : AccessibilityService() {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
 
-                val isVideoMode = findText(root, "Thêm bình luận")
-                if (isVideoMode == null) {
+                val isLiveMode = findText(root, "Có khuyến mãi không shop")
+                if (isLiveMode != null) {
                     val popup = findText(root, "Vòng Quay")
                     if (popup != null) {
-                        isNeedToClose = true
                         clickByPosition()
                         Thread.sleep(50)
                         continue
                     }
 
-                    if (isNeedToClose) {
-                        Thread.sleep(2000)
+                    val isNeedToClose = findText(root, "thưởng đã hết")
+                    if (isNeedToClose != null) {
                         clickByPosition(2f)
                         clickByPosition(2.25f)
                         clickByPosition(2.5f)
                         clickByPosition(2.75f)
                         clickByPosition(3f)
-                        isNeedToClose = false
                     }
 
                     var quayMinutes = 5
