@@ -197,17 +197,19 @@ class MainService : AccessibilityService() {
         }
     }
 
-    private fun findSubCountdown(root: AccessibilityNodeInfo, countdown: String): Int {
-        val cd = findClickableNodeByText(root, countdown)
-        if (cd != null) {
-            val countdownText = findCountdownNear(cd)
+    private fun findSubCountdown(root: AccessibilityNodeInfo, keyword: String): Int {
+        val node = findText(root, keyword)
+        if (node != null) {
+            val countdownText = findCountdownNear(node) ?: findCountdownNear(node.parent)
             if (countdownText != null) {
+                Log.d("MainService", "Tìm thấy countdown [$countdownText] gần [$keyword]")
                 return 1
             }
+        } else {
+            Log.d("MainService", "Không tìm thấy text: $keyword")
         }
         return 0
     }
-
 
     private fun getGoButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         val countdownNodes = mutableListOf<AccessibilityNodeInfo>()
@@ -216,7 +218,6 @@ class MainService : AccessibilityService() {
         if (countdownNodes.isEmpty()) return null
         val lastCountdown = countdownNodes.last()
         val totalSubCoundown = findSubCountdown(root, "Điểm danh 7 ngày") + findSubCountdown(root, "Xem Live")
-        Log.d("MainService", "Total count: $totalSubCoundown, size: $countdownNodes.size")
 
         return if (countdownNodes.size == (2 + totalSubCoundown) || (countdownNodes.size == (1 + totalSubCoundown) && findClickableNodeByText(root, "xu streamer") == null)) {
             lastCountdown
