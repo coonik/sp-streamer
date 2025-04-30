@@ -48,7 +48,9 @@ class MainService : AccessibilityService() {
 
                 val isNeedToClose = findClickableNodeByText(root, "Xem thành tích của người chơi khác")
                 if (isNeedToClose != null) {
-                    findCloseButton(root)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    val closeBtn = findCloseButton(root)
+                    Log.d("MainService", "Click close button: $closeBtn")
+                    closeBtn?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                     Thread.sleep(50)
                     continue
@@ -56,7 +58,7 @@ class MainService : AccessibilityService() {
 
                 val mode = findActiveTab(root)
                 Log.d("MainService", "TAB mode: $mode")
-                if (mode == "Live) {
+                if (mode == "Live") {
                     var quayMinutes = 5
                     val goButton = getGoButton(root)
                     if (goButton != null) {
@@ -153,7 +155,10 @@ class MainService : AccessibilityService() {
         val screenWidth = metrics.widthPixels
         val screenHeight = metrics.heightPixels
         val dpi = metrics.densityDpi
-        val minDistanceFromBottomPx = ((4f / 2.54f) * dpi).toInt()
+
+        val diameterPx = ((1.5f / 2.54f) * dpi).toInt() // đường kính ~1.5cm
+        val distanceFromBottomPx = ((4f / 2.54f) * dpi).toInt() // cách đáy ~4cm
+        val horizontalTolerance = 50 // cho phép lệch tối đa 50px khỏi giữa
 
         for (node in nodeList) {
             val bounds = Rect()
@@ -162,21 +167,26 @@ class MainService : AccessibilityService() {
             val height = bounds.height()
             val width = bounds.width()
             val centerX = (bounds.left + bounds.right) / 2
+            val centerY = (bounds.top + bounds.bottom) / 2
 
-            if (height < 200 && width < 200) {
-                val isCenterHorizontally = centerX in (screenWidth / 4)..(screenWidth * 3 / 4)
-                val isFarFromBottom = bounds.bottom < (screenHeight - minDistanceFromBottomPx)
-                val isInLowerHalf = bounds.top > screenHeight / 2
+            val isSizeMatch = height in (diameterPx - 30)..(diameterPx + 30) &&
+                            width in (diameterPx - 30)..(diameterPx + 30)
 
-                if (isCenterHorizontally && isFarFromBottom && isInLowerHalf) {
-                    if (node.className == "android.widget.Button" || node.className == "android.widget.ImageView") {
-                        return node
-                    }
+            val isCenteredHorizontally = Math.abs(centerX - screenWidth / 2) <= horizontalTolerance
+            val isAbout4cmFromBottom = (screenHeight - bounds.bottom) in (distanceFromBottomPx - 60)..(distanceFromBottomPx + 60)
+
+            if (isSizeMatch && isCenteredHorizontally && isAbout4cmFromBottom) {
+                if ((node.className == "android.widget.ImageView" || node.className == "android.widget.Button") &&
+                    node.isVisibleToUser && node.isEnabled && node.isClickable
+                ) {
+                    return node
                 }
             }
         }
+
         return null
     }
+
 
     private fun showHighlight(x: Float, y: Float) {
         if (currentHighlightVisible) return
