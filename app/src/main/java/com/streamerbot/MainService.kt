@@ -10,16 +10,13 @@ import android.os.Looper
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+
 
 class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
     private var currentHighlightView: HighlightView? = null
     private var currentHighlightVisible = false
     private var isNeedToClose = false
-
-    private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
@@ -32,11 +29,10 @@ class MainService : AccessibilityService() {
     override fun onDestroy() {
         super.onDestroy()
         removeHighlight()
-        executorService.shutdown()
     }
 
     private fun startAutoClicking() {
-        executorService.execute {
+        Thread {
             while (true) {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
@@ -45,19 +41,19 @@ class MainService : AccessibilityService() {
                 if (popup != null) {
                     isNeedToClose = true
                     clickByPosition()
-                    handler.postDelayed({ return@postDelayed }, 50)
+                    Thread.sleep(50)
                     continue
                 }
 
                 if (isNeedToClose) {
-                    handler.postDelayed({
-                        clickByPosition(2f)
-                        clickByPosition(2.25f)
-                        clickByPosition(2.5f)
-                        clickByPosition(2.75f)
-                        clickByPosition(3f)
-                        isNeedToClose = false
-                    }, 1000)
+                    Thread.sleep(500)
+                    clickByPosition(2f)
+                    clickByPosition(2.25f)
+                    clickByPosition(2.5f)
+                    clickByPosition(2.75f)
+                    clickByPosition(3f)
+                    Thread.sleep(500)
+                    isNeedToClose = false
                 }
 
                 val goButton = getGoButton(root)
@@ -68,7 +64,7 @@ class MainService : AccessibilityService() {
                     val quayMinutes = extractMinutes(quayCountdownText)
                     if (quayMinutes <= 1) {
                         goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        handler.postDelayed({}, 5000)
+                        Thread.sleep(5000)
                         continue
                     }
                 }
@@ -79,20 +75,20 @@ class MainService : AccessibilityService() {
                     if (countdownText != null) {
                         val minutes = extractMinutes(countdownText)
                         if (minutes <= 5) {
-                            handler.postDelayed({}, 1000)
+                            Thread.sleep(1000)
                             continue
                         }
                     } else {
                         findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                         findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        handler.postDelayed({}, 1000)
+                        Thread.sleep(1000)
                         continue
                     }
                 }
                 performScrollOrSwipe()
-                handler.postDelayed({}, 3500)
+                Thread.sleep(3500)
             }
-        }
+        }.start()
     }
 
     private fun clickByPosition(offsetFromSpinButtonCm: Float = 0f) {
@@ -140,7 +136,7 @@ class MainService : AccessibilityService() {
         currentHighlightView = highlightView
         currentHighlightVisible = true
 
-        handler.postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             removeHighlight()
         }, 100)
     }
@@ -172,6 +168,7 @@ class MainService : AccessibilityService() {
         }
         return 0
     }
+
 
     private fun getGoButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         val countdownNodes = mutableListOf<AccessibilityNodeInfo>()
