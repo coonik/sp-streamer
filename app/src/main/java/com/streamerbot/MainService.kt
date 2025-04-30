@@ -37,57 +37,59 @@ class MainService : AccessibilityService() {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
 
-                val popup = findText(root, "Vòng Quay")
-                if (popup != null) {
-                    isNeedToClose = true
-                    clickByPosition()
-                    Thread.sleep(50)
-                    continue
-                }
-
-                if (isNeedToClose) {
-                    Thread.sleep(500)
-                    clickByPosition(2f)
-                    clickByPosition(2.25f)
-                    clickByPosition(2.5f)
-                    clickByPosition(2.75f)
-                    clickByPosition(3f)
-                    Thread.sleep(500)
-                    isNeedToClose = false
-                }
-
-                var quayMinutes = 5
-                val goButton = getGoButton(root)
-                if (goButton != null) {
-                    findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-
-                    val quayCountdownText = goButton.text?.toString() ?: ""
-                    quayMinutes = extractMinutes(quayCountdownText)
-                    if (quayMinutes <= 1) {
-                        goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        Thread.sleep(5000)
+                val isVideoMode = findText(root, "Thêm bình luận")
+                if (isVideoMode == null) {
+                    val popup = findText(root, "Vòng Quay")
+                    if (popup != null) {
+                        isNeedToClose = true
+                        clickByPosition()
+                        Thread.sleep(50)
                         continue
                     }
-                }
 
-                val xuStreamer = findClickableNodeByText(root, "xu streamer")
-                if (xuStreamer != null) {
-                    val countdownText = findCountdownNear(xuStreamer)
-                    if (countdownText != null) {
-                        val minutes = extractMinutes(countdownText)
-                        if (minutes <= 5) {
+                    if (isNeedToClose) {
+                        Thread.sleep(2000)
+                        clickByPosition(2f)
+                        clickByPosition(2.25f)
+                        clickByPosition(2.5f)
+                        clickByPosition(2.75f)
+                        clickByPosition(3f)
+                        isNeedToClose = false
+                    }
+
+                    var quayMinutes = 5
+                    val goButton = getGoButton(root)
+                    if (goButton != null) {
+                        findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+
+                        val quayCountdownText = goButton.text?.toString() ?: ""
+                        quayMinutes = extractMinutes(quayCountdownText)
+                        if (quayMinutes <= 1) {
+                            goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            Thread.sleep(5000)
+                            continue
+                        }
+                    }
+
+                    val xuStreamer = findClickableNodeByText(root, "xu streamer")
+                    if (xuStreamer != null) {
+                        val countdownText = findCountdownNear(xuStreamer)
+                        if (countdownText != null) {
+                            val minutes = extractMinutes(countdownText)
+                            if (minutes <= 5) {
+                                Thread.sleep(1000)
+                                continue
+                            }
+                        } else {
+                            findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                             Thread.sleep(1000)
                             continue
                         }
-                    } else {
-                        findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        Thread.sleep(1000)
+                    }
+                    if (goButton != null && quayMinutes <= 5) {
                         continue
                     }
-                }
-                if (goButton != null && quayMinutes <= 5) {
-                    continue
                 }
                 performScrollOrSwipe()
                 Thread.sleep(3500)
