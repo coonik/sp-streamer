@@ -12,7 +12,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
 import android.content.res.Resources
-
+import android.util.Log
 
 class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
@@ -37,8 +37,8 @@ class MainService : AccessibilityService() {
 
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
-                    clickByPosition()
-                    Thread.sleep(45)
+                    val quayBtn = findClickableNodeByText(root, "Quay")
+                    log.d("MainService", "Quay button: $quayBtn")
                     continue
                 }
 
@@ -59,7 +59,9 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                findClickableNodeByText(root, "Theo dõi")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                val fl = findClickableNodeByText(root, "theo dõi")
+                log.d("MainService", "Theo doi: $fl")
+                fl?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                 var quayMinutes = 5
                 val goButton = getGoButton(root)
                 if (goButton != null) {
