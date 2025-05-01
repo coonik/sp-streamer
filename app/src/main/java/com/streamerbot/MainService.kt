@@ -38,11 +38,11 @@ class MainService : AccessibilityService() {
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
                     clickByPosition()
-                    Thread.sleep(100)
+                    Thread.sleep(10)
                     continue
                 }
 
-                val isNeedToClose = findClickableNodeByText(root, "Xem thành tích của người chơi khác")
+                val isNeedToClose = findText(root, "Giải thưởng đã hết")
                 if (isNeedToClose != null) {
                     val closeBtn = findCloseButton(root)
                     closeBtn?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
@@ -266,8 +266,20 @@ class MainService : AccessibilityService() {
     }
 
 
-    private fun findClickableNodeByText(node: AccessibilityNodeInfo?, keyword: String, exactMatch: Boolean = false): AccessibilityNodeInfo? {
+    private fun findClickableNodeByText(
+        node: AccessibilityNodeInfo?,
+        keyword: String,
+        exactMatch: Boolean = false
+    ): AccessibilityNodeInfo? {
         if (node == null) return null
+
+        // Lấy vùng của node trên màn hình
+        val bounds = Rect()
+        node.getBoundsInScreen(bounds)
+
+        // Chỉ xử lý nếu node nằm trong nửa trên màn hình
+        val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+        if (bounds.centerY() > screenHeight / 2) return null
 
         val text = node.text?.toString()?.trim()
         val match = if (exactMatch) {
@@ -293,4 +305,5 @@ class MainService : AccessibilityService() {
 
         return null
     }
+
 }
