@@ -38,7 +38,7 @@ class MainService : AccessibilityService() {
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
                     clickByPosition()
-                    Thread.sleep(50)
+                    Thread.sleep(35)
                     continue
                 }
 
@@ -51,7 +51,7 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
-                findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                findClickableNodeByText(root, "Theo dõi")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                 var quayMinutes = 5
                 val goButton = getGoButton(root)
                 if (goButton != null) {
@@ -264,28 +264,21 @@ class MainService : AccessibilityService() {
         return null
     }
 
-
     private fun findClickableNodeByText(
         node: AccessibilityNodeInfo?,
-        keyword: String,
-        exactMatch: Boolean = false
+        keyword: String
     ): AccessibilityNodeInfo? {
         if (node == null) return null
 
-        // Lấy vùng của node trên màn hình
         val bounds = Rect()
         node.getBoundsInScreen(bounds)
-
-        // Chỉ xử lý nếu node nằm trong nửa trên màn hình
         val screenHeight = Resources.getSystem().displayMetrics.heightPixels
         if (bounds.centerY() > screenHeight / 2) return null
 
-        val text = node.text?.toString()?.trim()
-        val match = if (exactMatch) {
-            text == keyword
-        } else {
-            text?.lowercase()?.contains(keyword.lowercase()) == true
-        }
+        val nodeText = node.text?.toString()?.trim()?.lowercase() ?: ""
+        val keywordWords = keyword.trim().lowercase().split("\\s+".toRegex())
+
+        val match = keywordWords.all { nodeText.contains(it) }
 
         if (match) {
             var clickableNode: AccessibilityNodeInfo? = node
@@ -298,7 +291,7 @@ class MainService : AccessibilityService() {
         }
 
         for (i in 0 until node.childCount) {
-            val result = findClickableNodeByText(node.getChild(i), keyword, exactMatch)
+            val result = findClickableNodeByText(node.getChild(i), keyword)
             if (result != null) return result
         }
 
