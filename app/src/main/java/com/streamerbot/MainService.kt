@@ -39,8 +39,9 @@ class MainService : AccessibilityService() {
                 root.refresh()
 
                 // check livestream mode
-                val liveMode = findViewerNode(root)
-                Log.d("MainService", "Live mode: $liveMode")
+                val liveMode = findText(root, "người xem")
+                val liveText = findText(root, "Shopee Live")
+                Log.d("MainService", "Live mode: $liveMode, Live text: $liveText")
                 if (liveMode == null) {
                     performScrollOrSwipe()
                     Thread.sleep(2000)
@@ -256,20 +257,6 @@ class MainService : AccessibilityService() {
         return null
     }
 
-    fun findViewerNode(root: AccessibilityNodeInfo?): AccessibilityNodeInfo? {
-        val nodeList = mutableListOf<AccessibilityNodeInfo>()
-        findAllNodes(root, nodeList)
-        for (node in nodeList) {
-            val text = node.text?.toString()?.trim()
-            val contentDesc = node.contentDescription?.toString()?.trim()
-            if ((text?.contains("người xem", ignoreCase = true) == true) ||
-                (contentDesc?.contains("người xem", ignoreCase = true) == true)) {
-                return node
-            }
-        }
-        return null
-    }
-
     private fun extractMinutes(countdown: String): Int {
         val parts = countdown.split(":")
         return parts.getOrNull(0)?.toIntOrNull() ?: 0
@@ -313,13 +300,14 @@ class MainService : AccessibilityService() {
         for (node in nodeList) {
             val text = node.text?.toString()?.trim()
             val contentDesc = node.contentDescription?.toString()?.trim()
-            if ((text != null && text.equals(searchText, ignoreCase = true)) ||
-                (contentDesc != null && contentDesc.equals(searchText, ignoreCase = true))) {
+            if ((text?.contains(searchText, ignoreCase = true) == true) ||
+                (contentDesc?.contains(searchText, ignoreCase = true) == true)) {
                 return node
             }
         }
         return null
     }
+
 
     private fun findClickableNodeByText(node: AccessibilityNodeInfo?, keyword: String, exactMatch: Boolean = false): AccessibilityNodeInfo? {
         if (node == null) return null
