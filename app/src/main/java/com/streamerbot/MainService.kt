@@ -12,7 +12,6 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
 import android.content.res.Resources
-import android.util.Log
 
 
 class MainService : AccessibilityService() {
@@ -61,7 +60,6 @@ class MainService : AccessibilityService() {
                     quayMinutes = extractMinutes(quayCountdownText)
                     val quaySeconds = extractSeconds(quayCountdownText)
                     
-                    Log.d("MainService", "Quay minutes: $quayMinutes, Quay seconds: $quaySeconds")
                     if (quayMinutes === 0 && quaySeconds <= 10) {
                         goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                         Thread.sleep(5000)
@@ -88,7 +86,7 @@ class MainService : AccessibilityService() {
                     continue
                 }
                 performScrollOrSwipe()
-                Thread.sleep(3500)
+                Thread.sleep(3000)
             }
         }.start()
     }
