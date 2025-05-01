@@ -47,7 +47,7 @@ class MainService : AccessibilityService() {
                     val closeBtn = findCloseButton(root)
                     closeBtn?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
-                    Thread.sleep(1000)
+                    Thread.sleep(10)
                     continue
                 }
 
@@ -86,7 +86,7 @@ class MainService : AccessibilityService() {
                     continue
                 }
                 performScrollOrSwipe()
-                Thread.sleep(3000)
+                Thread.sleep(3500)
             }
         }.start()
     }
