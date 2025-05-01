@@ -52,7 +52,7 @@ class MainService : AccessibilityService() {
                     Log.d("MainService", "Click close button: $closeBtn")
                     closeBtn?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
-                    Thread.sleep(50)
+                    Thread.sleep(1000)
                     continue
                 }
 
