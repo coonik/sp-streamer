@@ -39,7 +39,7 @@ class MainService : AccessibilityService() {
                 root.refresh()
 
                 // check livestream mode
-                val liveMode = findText(root, "Chào mừng đến Shopee Live")
+                val liveMode = findText(root, "Shopee Live")
                 Log.d("MainService", "Live mode: $liveMode")
                 if (liveMode == null) {
                     Thread.sleep(2000)
