@@ -37,15 +37,6 @@ class MainService : AccessibilityService() {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
 
-                // check livestream mode
-                val liveMode = findText(root, "Shopee Live")
-                if (liveMode == null) {
-                    performScrollOrSwipe()
-                    Thread.sleep(2000)
-                    continue
-                }
-
-
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
                     clickByPosition()
@@ -219,6 +210,10 @@ class MainService : AccessibilityService() {
     }
 
     private fun getGoButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+        // check livestream mode
+        val liveMode = findText(root, "người xem")
+        if (liveMode == null) return null
+
         val countdownNodes = mutableListOf<AccessibilityNodeInfo>()
         collectCountdownNodes(root, countdownNodes)
 
