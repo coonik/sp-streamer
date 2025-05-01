@@ -12,7 +12,6 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
 import android.content.res.Resources
-import android.util.Log
 
 
 class MainService : AccessibilityService() {
@@ -57,20 +56,12 @@ class MainService : AccessibilityService() {
                 if (goButton != null) {
                     findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
-
-
-                        Log.d("MainService", "Go button: $goButton")
-                        goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-
-
-                        
                     val quayCountdownText = goButton.text?.toString() ?: ""
                     quayMinutes = extractMinutes(quayCountdownText)
                     val quaySeconds = extractSeconds(quayCountdownText)
-                    if (quayMinutes === 0 && quaySeconds === 30) {
-                        Log.d("MainService", "Go button: $goButton")
+                    if (quayMinutes === 0 && quaySeconds === 5) {
                         goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        Thread.sleep(1000)
+                        Thread.sleep(3000)
                         continue
                     }
                 }
