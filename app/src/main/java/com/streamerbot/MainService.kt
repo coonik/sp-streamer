@@ -55,6 +55,7 @@ class MainService : AccessibilityService() {
                 val liveMode = findText(root, "người xem")
                 if (liveMode == null) {
                     Thread.sleep(2000)
+                    performScrollOrSwipe()
                     continue
                 }
 
