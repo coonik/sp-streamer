@@ -11,7 +11,6 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
-import android.content.res.Resources
 import android.util.Log
 
 
@@ -63,7 +62,8 @@ class MainService : AccessibilityService() {
 
                     val quayCountdownText = goButton.text?.toString() ?: ""
                     quayMinutes = extractMinutes(quayCountdownText)
-                    if (quayMinutes <= 1) {
+                    val quaySeconds = extractSeconds(quayCountdownText)
+                    if (quayMinutes === 0 && quaySeconds === 1) {
                         goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                         Thread.sleep(5000)
                         continue
@@ -80,7 +80,6 @@ class MainService : AccessibilityService() {
                             continue
                         }
                     } else {
-                        findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                         findClickableNodeByText(root, "lưu")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                         Thread.sleep(1000)
                         continue
@@ -121,27 +120,6 @@ class MainService : AccessibilityService() {
             }
         }, null)
     }
-    
-    private fun findActiveTab(root: AccessibilityNodeInfo): String? {
-        val nodeList = mutableListOf<AccessibilityNodeInfo>()
-        findAllNodes(root, nodeList)
-
-        for (node in nodeList) {
-            // Kiểm tra xem tab có được chọn hay không
-            if (node.className == "android.widget.TextView" && node.isSelected) {
-                val text = node.text?.toString()
-                if (text != null) {
-                    if (text.contains("Video", ignoreCase = true)) {
-                        return "Video"
-                    }
-                    if (text.contains("Live", ignoreCase = true)) {
-                        return "Live"
-                    }
-                }
-            }
-        }
-        return null
-    }
 
     private fun findCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         val nodeList = ArrayList<AccessibilityNodeInfo>()
@@ -152,12 +130,13 @@ class MainService : AccessibilityService() {
         val screenHeight = metrics.heightPixels
         val dpi = metrics.densityDpi
 
-        // Đổi cm sang pixels
+        // Xác định vị trí trung tâm của vùng tìm kiếm
         val centerX = screenWidth / 2
-        val centerY = screenHeight - ((4f / 2.54f) * dpi).toInt()
+        val centerY = screenHeight - ((4f / 2.54f) * dpi).toInt() // 4cm từ đáy lên
 
-        val halfWidth = ((1f / 2.54f) * dpi).toInt() // 1cm mỗi bên
-        val halfHeight = ((1.5f / 2.54f) * dpi).toInt() // 1.5cm mỗi bên
+        // Kích thước vùng tìm kiếm: 1cm x 1cm (0.5cm mỗi bên)
+        val halfWidth = ((0.5f / 2.54f) * dpi).toInt()
+        val halfHeight = ((0.5f / 2.54f) * dpi).toInt()
 
         val targetRect = Rect(
             centerX - halfWidth,
@@ -184,8 +163,6 @@ class MainService : AccessibilityService() {
 
         return null
     }
-
-
 
     private fun showHighlight(x: Float, y: Float) {
         if (currentHighlightVisible) return
@@ -279,6 +256,11 @@ class MainService : AccessibilityService() {
     private fun extractMinutes(countdown: String): Int {
         val parts = countdown.split(":")
         return parts.getOrNull(0)?.toIntOrNull() ?: 0
+    }
+
+    private fun extractSeconds(countdown: String): Int {
+        val parts = countdown.split(":")
+        return parts.getOrNull(1)?.toIntOrNull() ?: 0
     }
 
     private fun performScrollOrSwipe() {
