@@ -224,8 +224,6 @@ class MainService : AccessibilityService() {
         collectCountdownNodes(root, countdownNodes)
 
         if (countdownNodes.isEmpty()) return null
-
-        if (countdownNodes.size == 1 && findClickableNodeByText(root, "Top nhà sáng tạo") == null) return null
         val lastCountdown = countdownNodes.last()
         val totalSubCoundown = findSubCountdown(root, "Điểm danh 7 ngày") + findSubCountdown(root, "Xem Live")
 
