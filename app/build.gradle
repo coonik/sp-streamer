@@ -12,7 +12,7 @@ android {
         minSdk 21
         targetSdk 34
         versionCode 1
-        versionName "1.31.9"
+        versionName "1.32.0"
 
         // Nếu có Java version mismatch, fix:
         compileOptions {
