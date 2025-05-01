@@ -39,10 +39,11 @@ class MainService : AccessibilityService() {
                 root.refresh()
 
                 // check livestream mode
-                val liveMode = findText(root, "Shopee Live")
+                val liveMode = findText(root, "người xem")
                 Log.d("MainService", "Live mode: $liveMode")
                 if (liveMode == null) {
                     Thread.sleep(2000)
+                    performScrollOrSwipe()
                     continue
                 }
 
