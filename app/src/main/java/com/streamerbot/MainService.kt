@@ -12,11 +12,11 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
 import android.content.res.Resources
+import android.util.Log
 
 
 class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
-    private var currentHighlightView: HighlightView? = null
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
@@ -28,7 +28,6 @@ class MainService : AccessibilityService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        removeHighlight()
     }
 
     private fun startAutoClicking() {
@@ -61,7 +60,8 @@ class MainService : AccessibilityService() {
                     val quayCountdownText = goButton.text?.toString() ?: ""
                     quayMinutes = extractMinutes(quayCountdownText)
                     val quaySeconds = extractSeconds(quayCountdownText)
-                    if (quayMinutes === 0 && quaySeconds === 2) {
+                    if (quayMinutes === 0 && quaySeconds === 30) {
+                        Log.d("MainService", "Go button: $goButton")
                         goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                         Thread.sleep(1000)
                         continue
@@ -110,13 +110,6 @@ class MainService : AccessibilityService() {
         val gesture = GestureDescription.Builder()
             .addStroke(GestureDescription.StrokeDescription(path, 0, 50))
             .build()
-
-        dispatchGesture(gesture, object : GestureResultCallback() {
-            override fun onCompleted(gestureDescription: GestureDescription?) {
-                super.onCompleted(gestureDescription)
-                showHighlight(x, y)
-            }
-        }, null)
     }
 
     private fun findCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
@@ -160,34 +153,6 @@ class MainService : AccessibilityService() {
         }
 
         return null
-    }
-
-    private fun showHighlight(x: Float, y: Float) {
-        val highlightView = HighlightView(this)
-        highlightView.setHighlight(x, y, 50f)
-
-        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            PixelFormat.TRANSLUCENT
-        )
-        windowManager.addView(highlightView, params)
-        currentHighlightView = highlightView
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            removeHighlight()
-        }, 100)
-    }
-
-    private fun removeHighlight() {
-        currentHighlightView?.let {
-            val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            windowManager.removeView(it)
-            currentHighlightView = null
-        }
     }
 
     private fun findAllNodes(node: AccessibilityNodeInfo?, list: MutableList<AccessibilityNodeInfo>) {
