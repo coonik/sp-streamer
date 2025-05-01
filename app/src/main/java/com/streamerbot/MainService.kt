@@ -39,12 +39,11 @@ class MainService : AccessibilityService() {
                 root.refresh()
 
                 // check livestream mode
-                val liveMode = findText(root, "người xem")
-                val liveText = findText(root, "Shopee Live")
-                Log.d("MainService", "Live mode: $liveMode, Live text: $liveText")
+                val liveMode = findViewerNode(root)
+                Log.d("MainService", "Live mode: $liveMode")
                 if (liveMode == null) {
-                    Thread.sleep(2000)
                     performScrollOrSwipe()
+                    Thread.sleep(2000)
                     continue
                 }
 
@@ -252,6 +251,20 @@ class MainService : AccessibilityService() {
             val text = child?.text?.toString()
             if (text != null && text.matches(Regex("\\d{1,2}:\\d{2}"))) {
                 return text
+            }
+        }
+        return null
+    }
+
+    fun findViewerNode(root: AccessibilityNodeInfo?): AccessibilityNodeInfo? {
+        val nodeList = mutableListOf<AccessibilityNodeInfo>()
+        findAllNodes(root, nodeList)
+        for (node in nodeList) {
+            val text = node.text?.toString()?.trim()
+            val contentDesc = node.contentDescription?.toString()?.trim()
+            if ((text?.contains("người xem", ignoreCase = true) == true) ||
+                (contentDesc?.contains("người xem", ignoreCase = true) == true)) {
+                return node
             }
         }
         return null
