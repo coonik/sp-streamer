@@ -12,6 +12,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
 import android.content.res.Resources
+import android.util.Log
 
 
 class MainService : AccessibilityService() {
@@ -59,6 +60,8 @@ class MainService : AccessibilityService() {
                     val quayCountdownText = goButton.text?.toString() ?: ""
                     quayMinutes = extractMinutes(quayCountdownText)
                     val quaySeconds = extractSeconds(quayCountdownText)
+                    
+                    Log.d("MainService", "Quay minutes: $quayMinutes, Quay seconds: $quaySeconds")
                     if (quayMinutes === 0 && quaySeconds <= 5) {
                         goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                         Thread.sleep(3000)
