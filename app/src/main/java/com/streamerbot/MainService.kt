@@ -12,7 +12,6 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.graphics.Rect
 import android.content.res.Resources
-import android.util.Log
 
 
 class MainService : AccessibilityService() {
@@ -39,9 +38,7 @@ class MainService : AccessibilityService() {
                 root.refresh()
 
                 // check livestream mode
-                val liveMode = findText(root, "người xem")
-                val liveText = findText(root, "Shopee Live")
-                Log.d("MainService", "Live mode: $liveMode, Live text: $liveText")
+                val liveMode = findText(root, "Shopee Live")
                 if (liveMode == null) {
                     performScrollOrSwipe()
                     Thread.sleep(2000)
