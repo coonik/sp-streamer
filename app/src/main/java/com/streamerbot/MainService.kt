@@ -66,7 +66,7 @@ class MainService : AccessibilityService() {
                     val quaySeconds = extractSeconds(quayCountdownText)
                     if (quayMinutes === 0 && quaySeconds === 1) {
                         goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        Thread.sleep(5000)
+                        Thread.sleep(500)
                         continue
                     }
                 }
