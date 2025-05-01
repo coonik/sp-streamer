@@ -62,9 +62,9 @@ class MainService : AccessibilityService() {
                     val quaySeconds = extractSeconds(quayCountdownText)
                     
                     Log.d("MainService", "Quay minutes: $quayMinutes, Quay seconds: $quaySeconds")
-                    if (quayMinutes === 0 && quaySeconds <= 5) {
+                    if (quayMinutes === 0 && quaySeconds <= 10) {
                         goButton.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        Thread.sleep(3000)
+                        Thread.sleep(5000)
                         continue
                     }
                 }
@@ -111,6 +111,7 @@ class MainService : AccessibilityService() {
         val gesture = GestureDescription.Builder()
             .addStroke(GestureDescription.StrokeDescription(path, 0, 50))
             .build()
+        dispatchGesture(gesture, null, null)
     }
 
     private fun findCloseButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
