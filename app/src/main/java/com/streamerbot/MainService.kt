@@ -37,13 +37,7 @@ class MainService : AccessibilityService() {
 
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
-                    val quayBtn = findClickableNodeByText(root, "Quay")
-                    val countdownNodes = mutableListOf<AccessibilityNodeInfo>()
-                    collectCountdownNodes(root, countdownNodes)
-
-                    if (countdownNodes.isEmpty()) {
-                        Log.d("MainService", "Click")
-                    }
+                    val quayBtn = findText(root, "Bắt đầu trong")
                     Log.d("MainService", "Quay button: $quayBtn")
                     continue
                 }
