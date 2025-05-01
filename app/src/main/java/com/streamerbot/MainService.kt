@@ -51,11 +51,10 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
+                findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                 var quayMinutes = 5
                 val goButton = getGoButton(root)
                 if (goButton != null) {
-                    findClickableNodeByText(root, "Theo dõi", true)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-
                     val quayCountdownText = goButton.text?.toString() ?: ""
                     quayMinutes = extractMinutes(quayCountdownText)
                     val quaySeconds = extractSeconds(quayCountdownText)
