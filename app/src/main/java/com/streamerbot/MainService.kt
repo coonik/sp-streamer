@@ -40,7 +40,8 @@ class MainService : AccessibilityService() {
 
                 // check livestream mode
                 val liveMode = findText(root, "người xem")
-                Log.d("MainService", "Live mode: $liveMode")
+                val liveText = findText(root, "Shopee Live")
+                Log.d("MainService", "Live mode: $liveMode, Live text: $liveText")
                 if (liveMode == null) {
                     Thread.sleep(2000)
                     performScrollOrSwipe()
@@ -298,7 +299,9 @@ class MainService : AccessibilityService() {
         findAllNodes(root, nodeList)
         for (node in nodeList) {
             val text = node.text?.toString()?.trim()
-            if (text != null && text.equals(searchText, ignoreCase = true)) {
+            val contentDesc = node.contentDescription?.toString()?.trim()
+            if ((text != null && text.equals(searchText, ignoreCase = true)) ||
+                (contentDesc != null && contentDesc.equals(searchText, ignoreCase = true))) {
                 return node
             }
         }
