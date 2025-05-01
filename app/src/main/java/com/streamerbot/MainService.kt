@@ -51,6 +51,13 @@ class MainService : AccessibilityService() {
                     continue
                 }
 
+                // check livestream mode
+                val liveMode = findText(root, "người xem")
+                if (liveMode == null) {
+                    Thread.sleep(2000)
+                    continue
+                }
+
                 findClickableNodeByText(root, "Theo dõi")?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                 var quayMinutes = 5
                 val goButton = getGoButton(root)
@@ -174,10 +181,6 @@ class MainService : AccessibilityService() {
     }
 
     private fun getGoButton(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
-        // check livestream mode
-        val liveMode = findText(root, "người xem")
-        if (liveMode == null) return null
-
         val countdownNodes = mutableListOf<AccessibilityNodeInfo>()
         collectCountdownNodes(root, countdownNodes)
 
