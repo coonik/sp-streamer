@@ -38,7 +38,7 @@ class MainService : AccessibilityService() {
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
                     clickByPosition()
-                    Thread.sleep(10)
+                    Thread.sleep(20)
                     continue
                 }
 
