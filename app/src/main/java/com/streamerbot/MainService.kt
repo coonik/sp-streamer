@@ -18,7 +18,6 @@ import android.util.Log
 class MainService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
     private var currentHighlightView: HighlightView? = null
-    private var currentHighlightVisible = false
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
     override fun onInterrupt() {}
@@ -39,17 +38,25 @@ class MainService : AccessibilityService() {
                 val root = rootInActiveWindow ?: continue
                 root.refresh()
 
+                // check livestream mode
+                val liveMode = findText(root, "Chào mừng đến Shopee Live")
+                Log.d("MainService", "Live mode: $liveMode")
+                if (liveMode == null) {
+                    Thread.sleep(2000)
+                    continue
+                }
+
+
                 val popup = findText(root, "Vòng Quay")
                 if (popup != null) {
                     clickByPosition()
-                    Thread.sleep(50)
+                    Thread.sleep(100)
                     continue
                 }
 
                 val isNeedToClose = findClickableNodeByText(root, "Xem thành tích của người chơi khác")
                 if (isNeedToClose != null) {
                     val closeBtn = findCloseButton(root)
-                    Log.d("MainService", "Click close button: $closeBtn")
                     closeBtn?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                     Thread.sleep(1000)
@@ -166,8 +173,6 @@ class MainService : AccessibilityService() {
     }
 
     private fun showHighlight(x: Float, y: Float) {
-        if (currentHighlightVisible) return
-
         val highlightView = HighlightView(this)
         highlightView.setHighlight(x, y, 50f)
 
@@ -181,7 +186,6 @@ class MainService : AccessibilityService() {
         )
         windowManager.addView(highlightView, params)
         currentHighlightView = highlightView
-        currentHighlightVisible = true
 
         Handler(Looper.getMainLooper()).postDelayed({
             removeHighlight()
@@ -193,7 +197,6 @@ class MainService : AccessibilityService() {
             val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
             windowManager.removeView(it)
             currentHighlightView = null
-            currentHighlightVisible = false
         }
     }
 
